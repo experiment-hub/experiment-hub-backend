@@ -20,7 +20,7 @@ jobs:
 
       - name: Build and push Docker image
         run: |
-          docker build -t https://registry.digitalocean.com/experiment-hub-cr/experiment-hub-backend .
+          docker build -t experiment-hub-backend .
           docker push https://registry.digitalocean.com/experiment-hub-cr/experiment-hub-backend
         env:
           DOCKER_USERNAME: ${{ secrets.DOCKER_USERNAME }}
