@@ -20,8 +20,8 @@ jobs:
 
       - name: Build and push Docker image
         run: |
-          docker build -t experiment-hub-backend:latest .
-          docker push https://registry.digitalocean.com/experiment-hub-cr/experiment-hub-backend
+          docker build -t registry.digitalocean.com/experiment-hub-cr/experiment-hub-backend:latest .
+          docker push registry.digitalocean.com/experiment-hub-cr/experiment-hub-backend
         env:
           DOCKER_USERNAME: ${{ secrets.DOCKER_USERNAME }}
           DOCKER_PASSWORD: ${{ secrets.DOCKER_PASSWORD }}
