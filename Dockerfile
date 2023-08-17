@@ -16,6 +16,7 @@ RUN npm install
 COPY . .
 
 RUN npx prisma generate
+RUN npm run prisma:generate:db_clients
 
 EXPOSE 3000
 RUN npm run build
