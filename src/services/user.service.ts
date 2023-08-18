@@ -9,7 +9,7 @@ import { AuthEntity } from '../auth/entity/auth.entity';
 import { CreateUserDto, UpdateUserDto } from 'src/auth/dto/user.dto';
 import * as bcrypt from 'bcrypt';
 
-const roundsOfHashing = process.env.ROUNDS;
+const roundsOfHashing = +process.env.ROUNDS;
 
 @Injectable()
 export class UserService {
@@ -67,7 +67,7 @@ export class UserService {
     const isPasswordValid = await bcrypt.compare(password, user.password);
 
     if (!isPasswordValid) {
-      throw new UnauthorizedException('Invalid password');
+      throw new UnauthorizedException('Wrong email/password combination');
     }
 
     return {

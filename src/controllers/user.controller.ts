@@ -35,7 +35,7 @@ export class UserController {
       return newUser;
     } catch (error) {
       throw new HttpException(
-        'An error occurred while creating the user.',
+        `An error occurred while creating the user: ${error.message}`,
         HttpStatus.INTERNAL_SERVER_ERROR,
       );
     }
@@ -46,7 +46,14 @@ export class UserController {
   @ApiBearerAuth()
   @ApiOkResponse({ type: UserEntity })
   async getUser(@Param('id') id: string) {
-    return this.userService.getUserById(+id);
+    try {
+      return this.userService.getUserById(+id);
+    } catch (error) {
+      throw new HttpException(
+        `An error occurred while finding the user: ${error.message}`,
+        HttpStatus.INTERNAL_SERVER_ERROR,
+      );
+    }
   }
 
   @Put(':id')
@@ -57,7 +64,14 @@ export class UserController {
     @Param('id') id: string,
     @Body() updateUserDto: UpdateUserDto,
   ) {
-    return this.userService.updateUser(+id, updateUserDto);
+    try {
+      return this.userService.updateUser(+id, updateUserDto);
+    } catch (error) {
+      throw new HttpException(
+        `An error occurred while updating the user: ${error.message}`,
+        HttpStatus.INTERNAL_SERVER_ERROR,
+      );
+    }
   }
 
   @Get()
@@ -65,12 +79,26 @@ export class UserController {
   @ApiBearerAuth()
   @ApiOkResponse({ type: UserEntity, isArray: true })
   async listUsers() {
-    return this.userService.listUsers();
+    try {
+      return this.userService.listUsers();
+    } catch (error) {
+      throw new HttpException(
+        `An error occurred while finding users: ${error.message}`,
+        HttpStatus.INTERNAL_SERVER_ERROR,
+      );
+    }
   }
 
   @Post('login')
   @ApiOkResponse({ type: AuthEntity })
   login(@Body() { email, password }: LoginDto) {
-    return this.userService.login(email, password);
+    try {
+      return this.userService.login(email, password);
+    } catch (error) {
+      throw new HttpException(
+        `An error occurred on login: ${error.message}`,
+        HttpStatus.INTERNAL_SERVER_ERROR,
+      );
+    }
   }
 }
