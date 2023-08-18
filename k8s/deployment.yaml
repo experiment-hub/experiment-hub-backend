@@ -1,0 +1,25 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: experiment-hub-backend-deployment
+  labels:
+    app: experiment-hub-backend
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: experiment-hub-backend
+  template:
+    metadata:
+      labels:
+        app: experiment-hub-backend
+    spec:
+      containers:
+      - name: experiment-hub-backend
+        image: experiment-hub-backend:v0.1.0
+        imagePullPolicy: IfNotPresent
+        env:
+        - name: PORT
+          value: "3000"
+        ports:
+        - containerPort: 3000
