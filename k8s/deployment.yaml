@@ -18,5 +18,8 @@ spec:
       - name: experiment-hub-backend
         image: experiment-hub-backend:v0.1.0
         imagePullPolicy: IfNotPresent
+        env:
+        - name: PORT
+          value: "3000"
         ports:
         - containerPort: 3000
