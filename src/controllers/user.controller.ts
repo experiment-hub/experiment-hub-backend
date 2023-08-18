@@ -18,7 +18,7 @@ import {
 } from '@nestjs/swagger';
 import { AuthEntity } from '../auth/entity/auth.entity';
 import { LoginDto } from 'src/auth/dto/login.dto';
-import { CreateUserDto, UpdateUserDto } from 'src/auth/dto/user.dto';
+import { CreateUserDto, UpdateUserDto } from 'src/dtos/user.dto';
 import { JwtAuthGuard } from 'src/auth/jwt-auth.guard';
 import { UserEntity } from 'src/entities/user.entity';
 
