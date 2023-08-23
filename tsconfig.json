@@ -17,13 +17,5 @@
     "strictBindCallApply": false,
     "forceConsistentCasingInFileNames": false,
     "noFallthroughCasesInSwitch": false,
-    "paths": {
-      "@app/auth": [
-        "libs/auth/src"
-      ],
-      "@app/auth/*": [
-        "libs/auth/src/*"
-      ]
-    }
   }
 }
