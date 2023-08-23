@@ -6,7 +6,7 @@ import {
 import { PrismaClient } from '@prisma/postgres/client';
 import { JwtService } from '@nestjs/jwt';
 import { AuthEntity } from '../auth/entity/auth.entity';
-import { CreateUserDto, UpdateUserDto } from 'src/auth/dto/user.dto';
+import { CreateUserDto, UpdateUserDto } from 'src/dtos/user.dto';
 import * as bcrypt from 'bcrypt';
 
 const roundsOfHashing = +process.env.ROUNDS;
