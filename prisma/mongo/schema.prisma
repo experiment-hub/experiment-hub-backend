@@ -1,0 +1,30 @@
+generator client {
+    provider = "prisma-client-js"
+    output   = "../../node_modules/@prisma/mongo/client"
+}
+
+datasource db {
+    provider = "mongodb"
+    url      = env("MONGO_DATABASE_URL")
+}  
+
+model Form {
+    id            String   @id @default(auto()) @map("_id") @db.ObjectId
+    title         String
+    description   String
+    body          Json?
+    createdAt     DateTime @default(now())
+    updatedAt     DateTime @updatedAt
+    answers       Answer[]
+    @@map("forms")
+}
+
+model Answer {
+    id            String   @id @default(auto()) @map("_id") @db.ObjectId
+    content       String
+    body          Json?
+    createdAt     DateTime @default(now())
+    form          Form     @relation(fields: [formId], references: [id])
+    formId        String   @map("form_id") @db.ObjectId
+    @@map("answers")
+}
