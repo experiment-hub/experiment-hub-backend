@@ -71,3 +71,19 @@ Nest is an MIT-licensed open source project. It can grow thanks to the sponsors 
 ## License
 
 Nest is [MIT licensed](LICENSE).
+
+
+# Infra documentation
+
+## VM Postgres
+```bash
+#basic admin
+useradd -m -s /bin/bash experiment-hub
+usermod -aG sudo experiment-hub
+passwd experiment-hub #saved in secrets
+
+#postgre install
+sudo apt install postgresql postgresql-contrib
+
+```
+
