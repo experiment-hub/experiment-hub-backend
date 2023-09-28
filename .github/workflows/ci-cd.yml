@@ -1,0 +1,7 @@
+name: Test and deploy to DO
+
+#TODO: start a workflow triggered by tag, not by push to a branch.
+
+#on:
+#release:
+#  types: [published]
