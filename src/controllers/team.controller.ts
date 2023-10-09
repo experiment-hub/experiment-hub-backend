@@ -1,15 +1,19 @@
 import {
   Controller,
   Post,
+  Put,
   Body,
   Get,
   Param,
   HttpStatus,
   HttpException,
-  Put,
   Query,
+  UploadedFile,
+  UseInterceptors,
 } from '@nestjs/common';
 import { TeamService } from '../services/team.service';
+import { TeamMediaService } from '../services/teamMedia.service';
+import { FileInterceptor } from '@nestjs/platform-express';
 
 class CreateTeamDto {
   name: string;
@@ -24,7 +28,10 @@ class UpdateTeamDto {
 
 @Controller('teams')
 export class TeamController {
-  constructor(private readonly teamService: TeamService) {}
+  constructor(
+    private readonly teamService: TeamService,
+    private readonly teamMediaService: TeamMediaService,
+  ) {}
 
   @Post()
   async createTeam(@Body() createTeamDto: CreateTeamDto) {
@@ -78,6 +85,21 @@ export class TeamController {
         'An error occurred while finding teams.',
         HttpStatus.INTERNAL_SERVER_ERROR,
       );
+    }
+  }
+
+  @Post(':id/media')
+  @UseInterceptors(FileInterceptor('file'))
+  async uploadMedia(
+    @Param('id') id: number,
+    @UploadedFile() file: Express.Multer.File,
+  ) {
+    try {
+      const fileUrl = await this.teamMediaService.uploadFileToSpaces(file);
+
+      return { message: 'File uploaded successfully', fileUrl };
+    } catch (error) {
+      throw new HttpException(error.message, HttpStatus.INTERNAL_SERVER_ERROR);
     }
   }
 }
