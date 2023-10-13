@@ -73,8 +73,10 @@ echo "mongodb-org-tools hold" | sudo dpkg --set-selections
 systemctl enable mongod.service
 sudo systemctl start mongod
 sudo systemctl status mongod
+```
 
-mongosh
+In `mongosh``
+```
 use admin
 db.createUser(
   {
@@ -82,21 +84,54 @@ db.createUser(
     pwd: passwordPrompt(),
     roles: [
       { role: "userAdminAnyDatabase", db: "admin" },
-      { role: "readWriteAnyDatabase", db: "admin" }
+      { role: "readWriteAnyDatabase", db: "admin" },
+      { role: "clusterAdmin", db: "admin" }
     ]
   }
 )
 
-#in /etc/mongod.conf
-security:
-    authorization: enabled
+use experiment_hub
+db.createUser(
+  {
+    user: "experiment_hub",
+    pwd: passwordPrompt(),
+    roles: [
+      { role: "dbOwner", db: "experiment_hub" },
+      { role: "userAdmin", db: "experiment_hub" }
+    ]
+  }
+)
+```
 
+Create keyfile for replica set
+```bash
+sudo openssl rand -base64 756 > /var/lib/mongodb/keyfile
+sudo chmod 400 /var/lib/mongodb/keyfile
+
+```
+
+In `/etc/mongod.conf``
+```yml
+net:
+  port: 27017
+  bindIp: 0.0.0.0
+security:
+  authorization: enabled
+  keyFile: /var/lib/mongodb/keyfile
+replication:
+  replSetName: experiment-hub-rs
+```
+
+Then restart mongodb service an login:
+```
 mongosh --authenticationDatabase "admin" -u "admin" admin -p
+
+use admin
+rs.initiate()
 
 use experiment_hub
 
 alias mongoshadmin='mongosh --authenticationDatabase "admin" -u "admin" admin -p'
-
 ```
 
 ## VM experiment-hub-backend
@@ -132,4 +167,19 @@ reboot
 #install postgres client
 sudo apt install postgresql-client
 
+#install mongo shell
+sudo apt-get install gnupg
+wget -qO- https://www.mongodb.org/static/pgp/server-7.0.asc | sudo tee /etc/apt/trusted.gpg.d/server-7.0.asc
+echo "deb [ arch=amd64,arm64 ] https://repo.mongodb.org/apt/ubuntu jammy/mongodb-org/7.0 multiverse" | sudo tee /etc/apt/sources.list.d/mongodb-org-7.0.list
+sudo apt-get update
+sudo apt-get install -y mongodb-mongosh
 ```
+
+use admin
+db.grantRolesToUser(
+  "admin",
+  [
+    { role: "clusterAdmin", db: "admin" }
+  ]
+)
+
