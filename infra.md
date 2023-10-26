@@ -160,7 +160,9 @@ sudo apt install docker-compose
 #activate firewall
 sudo ufw status #shows inactive
 sudo ufw allow ssh
+sudo ufw allow from any to any port 80 proto tcp
 sudo ufw allow from 10.124.0.0/20 to any port 3000 proto tcp
+sudo ufw allow from any to any port 3000 proto tcp
 sudo ufw enable
 reboot
 
