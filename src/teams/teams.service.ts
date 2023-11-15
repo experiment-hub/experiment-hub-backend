@@ -1,6 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import { PrismaClient } from '@prisma/postgres/client';
-import { CreateTeamDto, UpdateTeamDto } from 'src/dtos/team.dto';
+import { CreateTeamDto, UpdateTeamDto } from 'src/teams/team.dto';
 @Injectable()
 export class TeamService {
   private readonly prisma: PrismaClient;
