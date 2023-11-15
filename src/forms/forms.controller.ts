@@ -9,16 +9,16 @@ import {
   HttpException,
   UseGuards,
 } from '@nestjs/common';
-import { FormService } from '../services/form.service';
+import { FormService } from './forms.service';
 import {
   ApiBearerAuth,
   ApiCreatedResponse,
   ApiOkResponse,
   ApiTags,
 } from '@nestjs/swagger';
-import { FormDto } from 'src/dtos/form.dto';
+import { FormDto } from 'src/forms/form.dto';
 import { JwtAuthGuard } from 'src/auth/jwt-auth.guard';
-import { FormEntity } from 'src/entities/form.entity';
+import { FormEntity } from 'src/forms/form.entity';
 
 @Controller('teams')
 @ApiTags('forms')

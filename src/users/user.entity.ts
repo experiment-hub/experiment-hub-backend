@@ -1,7 +1,7 @@
 import { ApiProperty } from '@nestjs/swagger';
 import { User } from '@prisma/postgres/client';
 import { Exclude } from 'class-transformer';
-import { UserType } from 'src/enums/user.enum';
+import { UserType } from 'src/users/user.enum';
 
 export class UserEntity implements User {
   constructor(partial: Partial<UserEntity>) {

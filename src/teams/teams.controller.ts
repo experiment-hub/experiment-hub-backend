@@ -9,7 +9,7 @@ import {
   Put,
   Query,
 } from '@nestjs/common';
-import { TeamService } from '../services/team.service';
+import { TeamService } from './teams.service';
 
 class CreateTeamDto {
   name: string;

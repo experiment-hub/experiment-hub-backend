@@ -1,6 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import { PrismaClient } from '@prisma/mongo/client';
-import { CreateAnswerDto, UpdateAnswerDto } from 'src/dtos/answer.dto';
+import { CreateAnswerDto, UpdateAnswerDto } from 'src/answers/answer.dto';
 
 @Injectable()
 export class AnswerService {
