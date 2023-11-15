@@ -9,18 +9,18 @@ import {
   HttpException,
   UseGuards,
 } from '@nestjs/common';
-import { UserService } from '../services/user.service';
+import { UserService } from './users.service';
 import {
   ApiBearerAuth,
   ApiCreatedResponse,
   ApiOkResponse,
   ApiTags,
 } from '@nestjs/swagger';
-import { AuthEntity } from '../auth/entity/auth.entity';
+import { AuthEntity } from '../auth/entities/auth.entity';
 import { LoginDto } from 'src/auth/dto/login.dto';
-import { CreateUserDto, UpdateUserDto } from 'src/dtos/user.dto';
+import { CreateUserDto, UpdateUserDto } from 'src/users/user.dto';
 import { JwtAuthGuard } from 'src/auth/jwt-auth.guard';
-import { UserEntity } from 'src/entities/user.entity';
+import { UserEntity } from 'src/users/user.entity';
 
 @Controller('users')
 @ApiTags('users')

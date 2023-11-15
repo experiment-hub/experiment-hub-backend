@@ -1,19 +1,20 @@
 import {
+  Body,
   Controller,
+  Get,
+  HttpException,
+  HttpStatus,
+  Param,
   Post,
   Put,
-  Body,
-  Get,
-  Param,
-  HttpStatus,
-  HttpException,
   Query,
   UploadedFile,
   UseInterceptors,
 } from '@nestjs/common';
-import { TeamService } from '../services/team.service';
-import { TeamMediaService } from '../services/teamMedia.service';
+
 import { FileInterceptor } from '@nestjs/platform-express';
+import { TeamMediaService } from './teamMedia.service';
+import { TeamService } from './teams.service';
 
 class CreateTeamDto {
   name: string;

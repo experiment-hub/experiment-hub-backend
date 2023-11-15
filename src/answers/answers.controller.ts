@@ -8,8 +8,8 @@ import {
   Param,
   Put,
 } from '@nestjs/common';
-import { AnswerService } from '../services/answer.service';
-import { CreateAnswerDto, UpdateAnswerDto } from 'src/dtos/answer.dto';
+import { AnswerService } from './answers.service';
+import { CreateAnswerDto, UpdateAnswerDto } from 'src/answers/answer.dto';
 
 @Controller('teams/:teamId/forms/:id/answers')
 export class AnswerController {

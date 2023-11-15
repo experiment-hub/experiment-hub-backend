@@ -1,7 +1,9 @@
 import { Module } from '@nestjs/common';
-import { TeamController } from 'src/controllers/team.controller';
-import { TeamService } from 'src/services/team.service';
-import { TeamMediaService } from 'src/services/teamMedia.service';
+
+import { TeamMediaService } from './teamMedia.service';
+import { TeamController } from './teams.controller';
+import { TeamService } from './teams.service';
+
 @Module({
   controllers: [TeamController],
   providers: [TeamService, TeamMediaService],

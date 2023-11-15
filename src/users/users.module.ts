@@ -1,9 +1,9 @@
-import { UserController } from 'src/controllers/user.controller';
-import { UserService } from 'src/services/user.service';
+import { UserController } from 'src/users/users.controller';
+import { UserService } from 'src/users/users.service';
 import { Module } from '@nestjs/common';
 import { PassportModule } from '@nestjs/passport';
 import { JwtModule } from '@nestjs/jwt';
-import { JwtStrategy } from 'src/auth/strategy/jwt.strategy';
+import { JwtStrategy } from 'src/auth/strategies/jwt.strategy';
 
 const jwtSecret = process.env.JWT_SECRET;
 
