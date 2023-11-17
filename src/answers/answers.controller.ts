@@ -1,29 +1,41 @@
 import {
-  Controller,
-  Post,
   Body,
-  HttpStatus,
-  HttpException,
+  Controller,
   Get,
+  HttpException,
+  HttpStatus,
   Param,
+  Post,
   Put,
 } from '@nestjs/common';
-import { AnswerService } from './answers.service';
 import { CreateAnswerDto, UpdateAnswerDto } from 'src/answers/answer.dto';
+import { AnswerService } from './answers.service';
 
-@Controller('teams/:teamId/forms/:id/answers')
+@Controller('experiments/:id/answers')
 export class AnswerController {
   constructor(private readonly answerService: AnswerService) {}
+
+  @Get()
+  async listAnswers(@Param('id') experimentId: string) {
+    try {
+      const answers = await this.answerService.listAnswers(experimentId);
+      return answers;
+    } catch (error) {
+      throw new HttpException(
+        'An error occurred while finding answers.',
+        HttpStatus.INTERNAL_SERVER_ERROR,
+      );
+    }
+  }
 
   @Post()
   async createAnswer(
     @Body() createAnswerDto: CreateAnswerDto,
-    @Param('id') formId: string,
-    @Param('teamId') teamId: string,
+    @Param('id') experimentId: string,
   ) {
     try {
       const newAnswer = await this.answerService.createAnswer(
-        formId,
+        experimentId,
         createAnswerDto,
       );
       return newAnswer;
@@ -62,22 +74,6 @@ export class AnswerController {
     } catch (error) {
       throw new HttpException(
         'An error occurred while finding the answer.',
-        HttpStatus.INTERNAL_SERVER_ERROR,
-      );
-    }
-  }
-
-  @Get()
-  async listAnswers(
-    @Param('id') formId: string,
-    @Param('teamId') teamId: string,
-  ) {
-    try {
-      const answers = await this.answerService.listAnswers(formId);
-      return answers;
-    } catch (error) {
-      throw new HttpException(
-        'An error occurred while finding answers.',
         HttpStatus.INTERNAL_SERVER_ERROR,
       );
     }

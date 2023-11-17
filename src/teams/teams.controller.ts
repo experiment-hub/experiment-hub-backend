@@ -34,6 +34,30 @@ export class TeamController {
     private readonly teamMediaService: TeamMediaService,
   ) {}
 
+  @Get(':id')
+  async getTeam(@Param('id') id: number) {
+    try {
+      const team = await this.teamService.getTeamById(id);
+      // TODO: devolver miembros y experimentos
+      return team;
+    } catch (error) {
+      throw new HttpException(
+        'An error occurred while finding the team.',
+        HttpStatus.INTERNAL_SERVER_ERROR,
+      );
+    }
+  }
+
+  @Get(':id/members')
+  async getTeamMembers(@Param('id') id: number) {
+    // TODO: devolver miembros
+  }
+
+  @Get(':id/expeiments')
+  async getTeamExperiments(@Param('id') id: number) {
+    // TODO: devolver miembros
+  }
+
   @Post()
   async createTeam(@Body() createTeamDto: CreateTeamDto) {
     try {
@@ -63,31 +87,18 @@ export class TeamController {
     }
   }
 
-  @Get(':id')
-  async getTeam(@Param('id') id: number) {
-    try {
-      const team = await this.teamService.getTeamById(id);
-      return team;
-    } catch (error) {
-      throw new HttpException(
-        'An error occurred while finding the team.',
-        HttpStatus.INTERNAL_SERVER_ERROR,
-      );
-    }
-  }
-
-  @Get()
-  async listTeams(@Query('userId') userId?: number) {
-    try {
-      const teams = await this.teamService.listTeams(userId);
-      return teams;
-    } catch (error) {
-      throw new HttpException(
-        'An error occurred while finding teams.',
-        HttpStatus.INTERNAL_SERVER_ERROR,
-      );
-    }
-  }
+  // @Get()
+  // async listTeams(@Query('userId') userId?: number) {
+  //   try {
+  //     const teams = await this.teamService.listTeams(userId);
+  //     return teams;
+  //   } catch (error) {
+  //     throw new HttpException(
+  //       'An error occurred while finding teams.',
+  //       HttpStatus.INTERNAL_SERVER_ERROR,
+  //     );
+  //   }
+  // }
 
   @Post(':id/media')
   @UseInterceptors(FileInterceptor('file'))
@@ -97,7 +108,6 @@ export class TeamController {
   ) {
     try {
       const fileUrl = await this.teamMediaService.uploadFileToSpaces(file);
-
       return { message: 'File uploaded successfully', fileUrl };
     } catch (error) {
       throw new HttpException(error.message, HttpStatus.INTERNAL_SERVER_ERROR);

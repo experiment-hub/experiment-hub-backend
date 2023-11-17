@@ -27,68 +27,7 @@ import { UserEntity } from 'src/users/user.entity';
 export class UserController {
   constructor(private readonly userService: UserService) {}
 
-  @Post()
-  @ApiCreatedResponse({ type: UserEntity })
-  async createUser(@Body() createUserDto: CreateUserDto) {
-    try {
-      const newUser = await this.userService.createUser(createUserDto);
-      return newUser;
-    } catch (error) {
-      throw new HttpException(
-        `An error occurred while creating the user: ${error.message}`,
-        HttpStatus.INTERNAL_SERVER_ERROR,
-      );
-    }
-  }
-
-  @Get(':id')
-  @UseGuards(JwtAuthGuard)
-  @ApiBearerAuth()
-  @ApiOkResponse({ type: UserEntity })
-  async getUser(@Param('id') id: string) {
-    try {
-      return this.userService.getUserById(+id);
-    } catch (error) {
-      throw new HttpException(
-        `An error occurred while finding the user: ${error.message}`,
-        HttpStatus.INTERNAL_SERVER_ERROR,
-      );
-    }
-  }
-
-  @Put(':id')
-  @UseGuards(JwtAuthGuard)
-  @ApiBearerAuth()
-  @ApiOkResponse({ type: UserEntity })
-  async updateUser(
-    @Param('id') id: string,
-    @Body() updateUserDto: UpdateUserDto,
-  ) {
-    try {
-      return this.userService.updateUser(+id, updateUserDto);
-    } catch (error) {
-      throw new HttpException(
-        `An error occurred while updating the user: ${error.message}`,
-        HttpStatus.INTERNAL_SERVER_ERROR,
-      );
-    }
-  }
-
-  @Get()
-  @UseGuards(JwtAuthGuard)
-  @ApiBearerAuth()
-  @ApiOkResponse({ type: UserEntity, isArray: true })
-  async listUsers() {
-    try {
-      return this.userService.listUsers();
-    } catch (error) {
-      throw new HttpException(
-        `An error occurred while finding users: ${error.message}`,
-        HttpStatus.INTERNAL_SERVER_ERROR,
-      );
-    }
-  }
-
+  // TODO: mover a /auth
   @Post('login')
   @ApiOkResponse({ type: AuthEntity })
   login(@Body() { email, password }: LoginDto) {
@@ -101,4 +40,69 @@ export class UserController {
       );
     }
   }
+
+  // TODO: mover a /auth
+  @Post('signup')
+  @ApiCreatedResponse({ type: UserEntity })
+  async createUser(@Body() createUserDto: CreateUserDto) {
+    try {
+      const newUser = await this.userService.createUser(createUserDto);
+      // TODO: login user on signup
+      return newUser;
+    } catch (error) {
+      throw new HttpException(
+        `An error occurred while creating the user: ${error.message}`,
+        HttpStatus.INTERNAL_SERVER_ERROR,
+      );
+    }
+  }
+
+  // TODO: mover a /auth
+  @Post('logout')
+  @UseGuards(JwtAuthGuard)
+  @ApiBearerAuth()
+  @ApiOkResponse({ type: AuthEntity })
+  async logout(@Body() body: any) {
+    try {
+      // return this.userService.logout(refreshToken);
+      // TODO: logout user
+    } catch (error) {
+      throw new HttpException(
+        `An error occurred while logging out: ${error.message}`,
+        HttpStatus.INTERNAL_SERVER_ERROR,
+      );
+    }
+  }
+
+  @Get(':id')
+  @ApiOkResponse({ type: UserEntity })
+  async getUser(@Param('id') id: string) {
+    try {
+      // TODO: traer experimentos y equipos
+      return this.userService.getUserById(+id);
+    } catch (error) {
+      throw new HttpException(
+        `An error occurred while finding the user: ${error.message}`,
+        HttpStatus.INTERNAL_SERVER_ERROR,
+      );
+    }
+  }
+
+  // @Put(':id')
+  // @UseGuards(JwtAuthGuard)
+  // @ApiBearerAuth()
+  // @ApiOkResponse({ type: UserEntity })
+  // async updateUser(
+  //   @Param('id') id: string,
+  //   @Body() updateUserDto: UpdateUserDto,
+  // ) {
+  //   try {
+  //     return this.userService.updateUser(+id, updateUserDto);
+  //   } catch (error) {
+  //     throw new HttpException(
+  //       `An error occurred while updating the user: ${error.message}`,
+  //       HttpStatus.INTERNAL_SERVER_ERROR,
+  //     );
+  //   }
+  // }
 }
