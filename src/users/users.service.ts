@@ -1,22 +1,21 @@
-import {
-  Injectable,
-  NotFoundException,
-  UnauthorizedException,
-} from '@nestjs/common';
+import { Injectable } from '@nestjs/common';
 import { PrismaClient } from '@prisma/postgres/client';
-import { JwtService } from '@nestjs/jwt';
-import { AuthEntity } from '../auth/entities/auth.entity';
-import { CreateUserDto, UpdateUserDto } from 'src/users/user.dto';
 import * as bcrypt from 'bcrypt';
+import { CreateUserDto, UpdateUserDto } from 'src/users/user.dto';
 
 const roundsOfHashing = +process.env.ROUNDS;
 
 @Injectable()
-export class UserService {
+export class UsersService {
   private readonly prisma: PrismaClient;
 
-  constructor(private jwtService: JwtService) {
+  constructor() {
     this.prisma = new PrismaClient();
+  }
+
+  async findOne(email: string) {
+    const user = await this.prisma.user.findUnique({ where: { email } });
+    return user;
   }
 
   async createUser(createUserDto: CreateUserDto) {
@@ -55,24 +54,6 @@ export class UserService {
     } catch (error) {
       throw error; // Rethrow the error to be caught by the controller
     }
-  }
-
-  async login(email: string, password: string): Promise<AuthEntity> {
-    const user = await this.prisma.user.findUnique({ where: { email: email } });
-
-    if (!user) {
-      throw new NotFoundException(`No user found for email: ${email}`);
-    }
-
-    const isPasswordValid = await bcrypt.compare(password, user.password);
-
-    if (!isPasswordValid) {
-      throw new UnauthorizedException('Wrong email/password combination');
-    }
-
-    return {
-      accessToken: this.jwtService.sign({ userId: user.pk }),
-    };
   }
 
   async getUserById(id: number) {
