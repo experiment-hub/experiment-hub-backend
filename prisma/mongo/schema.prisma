@@ -6,25 +6,32 @@ generator client {
 datasource db {
     provider = "mongodb"
     url      = env("MONGO_DATABASE_URL")
-}  
+}
 
-model Form {
-    id            String   @id @default(auto()) @map("_id") @db.ObjectId
-    title         String
-    description   String
-    body          Json?
-    createdAt     DateTime @default(now())
-    updatedAt     DateTime @updatedAt
-    answers       Answer[]
-    @@map("forms")
+model Experiment {
+    id    String @id @default(auto()) @map("_id") @db.ObjectId
+    slug  String @unique
+    // nodes are a list of json objects
+    nodes Json[]
+    views Json[]
+
+    createdAt DateTime @default(now())
+    updatedAt DateTime @updatedAt
+
+    answers Answer[]
+
+    @@map("experiments")
 }
 
 model Answer {
-    id            String   @id @default(auto()) @map("_id") @db.ObjectId
-    content       String
-    body          Json?
-    createdAt     DateTime @default(now())
-    form          Form     @relation(fields: [formId], references: [id])
-    formId        String   @map("form_id") @db.ObjectId
+    id   String @id @default(auto()) @map("_id") @db.ObjectId
+    body Json?
+
+    createdAt DateTime @default(now())
+    updatedAt DateTime @updatedAt
+
+    experiment   Experiment @relation(fields: [experimentId], references: [id])
+    experimentId String     @map("experiment_id") @db.ObjectId
+
     @@map("answers")
 }

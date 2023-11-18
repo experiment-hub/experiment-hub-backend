@@ -1,21 +1,19 @@
 import {
-  Controller,
-  Get,
-  Post,
   Body,
-  Patch,
-  Param,
+  Controller,
   Delete,
+  Get,
+  Param,
+  Patch,
+  Post,
   Put,
 } from '@nestjs/common';
-import { ExperimentsService } from './experiments.service';
-import { CreateExperimentDto } from './dto/create-experiment.dto';
-import { UpdateExperimentDto } from './dto/update-experiment.dto';
 import { ApiTags } from '@nestjs/swagger';
-
-type CreateViewDto = {};
-type UpdateViewDto = {};
-type UpdateNodesDto = {};
+import { CreateExperimentDto } from './dto/create-experiment.dto';
+import { CreateViewDto } from './dto/create-view.dto';
+import { UpdateNodesDto } from './dto/update-nodes.dto';
+import { UpdateViewDto } from './dto/update-view.dto';
+import { ExperimentsService } from './experiments.service';
 
 @Controller('experiments')
 @ApiTags('experiments')

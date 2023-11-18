@@ -38,7 +38,6 @@ export class UsersService {
         data: {
           email: createUserDto.email,
           password: createUserDto.password,
-          type: createUserDto.type,
           name: createUserDto.name,
           organization: createUserDto.organization,
         },

@@ -10,12 +10,12 @@ export class AnswerService {
     this.prisma = new PrismaClient();
   }
 
-  async createAnswer(formId: string, createAnswerDto: CreateAnswerDto) {
+  async createAnswer(experimentId: string, createAnswerDto: CreateAnswerDto) {
     try {
       const newAnswer = await this.prisma.answer.create({
         data: {
           ...createAnswerDto,
-          formId,
+          experimentId,
         },
       });
       return newAnswer;
@@ -47,10 +47,10 @@ export class AnswerService {
     }
   }
 
-  async listAnswers(formId: string) {
+  async listAnswers(experimentId: string) {
     try {
       const answers = await this.prisma.answer.findMany({
-        where: { formId },
+        where: { experimentId },
       });
       return answers;
     } catch (error) {
