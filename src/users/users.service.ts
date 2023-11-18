@@ -21,6 +21,13 @@ export class UsersService {
   async findByUsername(username: string) {
     const user = await this.prisma.user.findFirst({
       where: { email: { startsWith: username } },
+      include: {
+        teams: {
+          select: {
+            team: true,
+          },
+        },
+      },
     });
     return user;
   }

@@ -23,11 +23,13 @@ model User {
 }
 
 model Team {
-    pk          Int        @id @default(autoincrement())
+    pk          Int     @id @default(autoincrement())
     name        String
+    coverImage  String?
     description String?
-    createdAt   DateTime   @default(now()) @map("created_at")
-    updatedAt   DateTime   @updatedAt @map("update_at")
+
+    createdAt   DateTime     @default(now()) @map("created_at")
+    updatedAt   DateTime     @updatedAt @map("update_at")
     users       TeamUser[]
     experiments Experiment[]
 

@@ -50,7 +50,21 @@ export class ExperimentsService {
   }
 
   async findAll() {
-    const postgresExperiments = await this.postgresPrisma.experiment.findMany();
+    const postgresExperiments = await this.postgresPrisma.experiment.findMany({
+      include: {
+        team: {
+          select: {
+            name: true,
+            description: true,
+            users: {
+              select: {
+                user: true,
+              },
+            },
+          },
+        },
+      },
+    });
     return postgresExperiments;
   }
 

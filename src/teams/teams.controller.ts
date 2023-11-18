@@ -5,9 +5,9 @@ import {
   HttpException,
   HttpStatus,
   Param,
+  ParseIntPipe,
   Post,
   Put,
-  Query,
   UploadedFile,
   UseInterceptors,
 } from '@nestjs/common';
@@ -34,8 +34,21 @@ export class TeamController {
     private readonly teamMediaService: TeamMediaService,
   ) {}
 
+  @Get()
+  async getTeams() {
+    try {
+      const teams = await this.teamService.listTeams();
+      return teams;
+    } catch (error) {
+      throw new HttpException(
+        'An error occurred while finding teams.',
+        HttpStatus.INTERNAL_SERVER_ERROR,
+      );
+    }
+  }
+
   @Get(':id')
-  async getTeam(@Param('id') id: number) {
+  async getTeam(@Param('id', ParseIntPipe) id: number) {
     try {
       const team = await this.teamService.getTeamById(id);
       // TODO: devolver miembros y experimentos
@@ -49,12 +62,12 @@ export class TeamController {
   }
 
   @Get(':id/members')
-  async getTeamMembers(@Param('id') id: number) {
+  async getTeamMembers(@Param('id', ParseIntPipe) id: number) {
     // TODO: devolver miembros
   }
 
   @Get(':id/expeiments')
-  async getTeamExperiments(@Param('id') id: number) {
+  async getTeamExperiments(@Param('id', ParseIntPipe) id: number) {
     // TODO: devolver miembros
   }
 
@@ -73,7 +86,7 @@ export class TeamController {
 
   @Put(':id')
   async updateTeam(
-    @Param('id') id: number,
+    @Param('id', ParseIntPipe) id: number,
     @Body() updateTeamDto: UpdateTeamDto,
   ) {
     try {
@@ -103,7 +116,7 @@ export class TeamController {
   @Post(':id/media')
   @UseInterceptors(FileInterceptor('file'))
   async uploadMedia(
-    @Param('id') id: number,
+    @Param('id', ParseIntPipe) id: number,
     @UploadedFile() file: Express.Multer.File,
   ) {
     try {

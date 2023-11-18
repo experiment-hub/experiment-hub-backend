@@ -53,10 +53,17 @@ export class TeamService {
     }
   }
 
-  async listTeams(userId?: number) {
+  async listTeams() {
     try {
       const teams = await this.prisma.team.findMany({
-        where: userId ? { users: { some: { userId } } } : {},
+        include: {
+          users: {
+            select: {
+              user: true,
+            },
+          },
+          experiments: true,
+        },
       });
       return teams;
     } catch (error) {
