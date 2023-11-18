@@ -9,18 +9,33 @@ datasource db {
 }
 
 model Experiment {
-    id    String @id @default(auto()) @map("_id") @db.ObjectId
-    slug  String @unique
+    id    String           @id @default(auto()) @map("_id") @db.ObjectId
+    slug  String           @unique
     // nodes are a list of json objects
-    nodes Json[]
-    views Json[]
+    nodes ExperimentNode[]
+    views ExperimentView[]
 
     createdAt DateTime @default(now())
     updatedAt DateTime @updatedAt
 
     answers Answer[]
 
+    @@unique([views.slug])
+    @@unique([nodes.id])
     @@map("experiments")
+}
+
+type ExperimentNode {
+    id         String
+    nodeType   String
+    nodeFamily String
+}
+
+type ExperimentView {
+    name        String
+    description String
+    slug        String
+    widgets     Json[]
 }
 
 model Answer {

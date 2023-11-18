@@ -1,1 +1,3 @@
-export type UpdateNodesDto = {};
+export type UpdateNodesDto = {
+  nodes: any[];
+};

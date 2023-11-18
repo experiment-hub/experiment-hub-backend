@@ -1,1 +1,5 @@
-export type CreateViewDto = {};
+export type CreateViewDto = {
+  name: string;
+  slug: string;
+  description: string;
+};

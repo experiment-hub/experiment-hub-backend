@@ -41,19 +41,23 @@ export class ExperimentsController {
   // crea una nueva vista
   @Post(':id/views')
   createView(@Param('id') id: string, @Body() createViewDto: CreateViewDto) {
-    // TODO
+    return this.experimentsService.createView(id, createViewDto);
   }
 
   // actualiza una vista en particular por cambios en widgets
-  @Put(':id/views/:viewId')
-  update(@Param('id') id: string, @Body() updateViewDto: UpdateViewDto) {
-    // TODO
+  @Put(':id/views/:viewSlug')
+  update(
+    @Param('id') id: string,
+    @Param('viewSlug') viewSlug: string,
+    @Body() updateViewDto: UpdateViewDto,
+  ) {
+    return this.experimentsService.updateView(id, viewSlug, updateViewDto);
   }
 
   // actualiza los nodos de un experimento en particular
   @Patch(':id/nodes')
   updateNodes(@Param('id') id: string, @Body() updateNodesDto: UpdateNodesDto) {
-    // TODO
+    return this.experimentsService.updateNodes(id, updateNodesDto);
   }
 
   // elimina un experimento en particular

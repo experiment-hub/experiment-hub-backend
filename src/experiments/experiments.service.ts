@@ -1,8 +1,11 @@
 import { Injectable } from '@nestjs/common';
-import { PrismaClient as PostgresClient } from '@prisma/postgres/client';
 import { PrismaClient as MongoClient } from '@prisma/mongo/client';
+import { PrismaClient as PostgresClient } from '@prisma/postgres/client';
 import { CreateExperimentDto } from './dto/create-experiment.dto';
+import { CreateViewDto } from './dto/create-view.dto';
 import { UpdateExperimentDto } from './dto/update-experiment.dto';
+import { UpdateNodesDto } from './dto/update-nodes.dto';
+import { UpdateViewDto } from './dto/update-view.dto';
 
 @Injectable()
 export class ExperimentsService {
@@ -73,6 +76,61 @@ export class ExperimentsService {
     );
 
     return { postgresExperiment, mongoExperiment };
+  }
+
+  async createView(id: string, createViewDto: CreateViewDto) {
+    const updatedExperiment = await this.mongoPrisma.experiment.update({
+      where: { id: id },
+
+      data: {
+        views: {
+          push: {
+            name: createViewDto.name,
+            slug: createViewDto.slug,
+            description: createViewDto.description,
+            widgets: [],
+          },
+        },
+      },
+    });
+
+    return updatedExperiment;
+  }
+
+  async updateView(id: string, viewSlug: string, updateViewDto: UpdateViewDto) {
+    const updatedExperiment = await this.mongoPrisma.experiment.update({
+      where: { id: id },
+      data: {
+        views: {
+          updateMany: {
+            where: {
+              slug: viewSlug,
+            },
+            data: {
+              widgets: {
+                set: updateViewDto.widgets,
+              },
+            },
+          },
+        },
+      },
+    });
+
+    return updatedExperiment;
+  }
+
+  async updateNodes(id: string, updateNodesDto: UpdateNodesDto) {
+    const updatedExperiment = await this.mongoPrisma.experiment.update({
+      where: { id: id },
+
+      data: {
+        nodes: {
+          set: updateNodesDto.nodes,
+        },
+      },
+    });
+
+    return updatedExperiment;
   }
 
   update(id: number, updateExperimentDto: UpdateExperimentDto) {
