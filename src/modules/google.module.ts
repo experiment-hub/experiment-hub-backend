@@ -2,9 +2,9 @@ import { Module } from '@nestjs/common';
 import { PassportModule } from '@nestjs/passport';
 import { JwtModule } from '@nestjs/jwt';
 import { GoogleController } from '../controllers/google.controller';
-import { GoogleService } from '../services/google.service';
+import { GoogleService } from '../google/google.service';
 import { GoogleStrategy } from '../strategies/google.strategy';
-import { UserService } from 'src/services/user.service';
+import { UserService } from '../users/users.service';
 
 const jwtSecret = process.env.JWT_SECRET;
 
