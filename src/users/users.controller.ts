@@ -18,8 +18,8 @@ export class UsersController {
   @ApiOkResponse({ type: UserEntity })
   async getUser(@Param('id') id: string) {
     try {
-      // TODO: traer experimentos y equipos
-      return this.usersService.getUserById(+id);
+      // TODO: traer experimentos y equipos, no traer password
+      return this.usersService.findByUsername(id);
     } catch (error) {
       throw new HttpException(
         `An error occurred while finding the user: ${error.message}`,

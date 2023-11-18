@@ -18,6 +18,13 @@ export class UsersService {
     return user;
   }
 
+  async findByUsername(username: string) {
+    const user = await this.prisma.user.findFirst({
+      where: { email: { startsWith: username } },
+    });
+    return user;
+  }
+
   async createUser(createUserDto: CreateUserDto) {
     try {
       const hashedPassword = await bcrypt.hash(
