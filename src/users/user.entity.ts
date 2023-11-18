@@ -24,6 +24,9 @@ export class UserEntity implements User {
   email: string;
 
   @ApiProperty()
+  organization: string;
+
+  @ApiProperty()
   type: UserType;
 
   @Exclude()

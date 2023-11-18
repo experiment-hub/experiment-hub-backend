@@ -33,13 +33,14 @@ export class UsersService {
           password: createUserDto.password,
           type: createUserDto.type,
           name: createUserDto.name,
+          organization: createUserDto.organization,
         },
       });
 
       // Create a new team for the user using the user's name as the team's name
       const newTeam = await this.prisma.team.create({
         data: {
-          name: createUserDto.name,
+          name: `${createUserDto.name}'s Team`,
           users: {
             create: [
               {

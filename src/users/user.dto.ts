@@ -17,6 +17,11 @@ export class CreateUserDto {
   @IsNotEmpty()
   @IsString()
   @ApiProperty()
+  organization: string;
+
+  @IsNotEmpty()
+  @IsString()
+  @ApiProperty()
   type: UserType;
 
   @IsNotEmpty()
