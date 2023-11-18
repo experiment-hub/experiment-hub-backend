@@ -133,8 +133,21 @@ export class ExperimentsService {
     return updatedExperiment;
   }
 
-  update(id: number, updateExperimentDto: UpdateExperimentDto) {
-    return `This action updates a #${id} experiment`;
+  async update(id: number, updateExperimentDto: UpdateExperimentDto) {
+    const { name, slug, coverImage, description, teamId } = updateExperimentDto;
+
+    const postgresExperiment = await this.postgresPrisma.experiment.update({
+      where: { pk: id },
+      data: {
+        name,
+        slug,
+        description,
+        coverImage,
+        teamId: +teamId,
+      },
+    });
+
+    return postgresExperiment;
   }
 
   remove(id: number) {

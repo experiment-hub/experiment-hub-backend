@@ -14,6 +14,7 @@ import { CreateViewDto } from './dto/create-view.dto';
 import { UpdateNodesDto } from './dto/update-nodes.dto';
 import { UpdateViewDto } from './dto/update-view.dto';
 import { ExperimentsService } from './experiments.service';
+import { UpdateExperimentDto } from './dto/update-experiment.dto';
 
 @Controller('experiments')
 @ApiTags('experiments')
@@ -38,6 +39,12 @@ export class ExperimentsController {
     return this.experimentsService.create(createExperimentDto);
   }
 
+  // update de un experimento
+  @Patch(':id')
+  update(@Param('id') id: string, updateExperimentDto: UpdateExperimentDto) {
+    return this.experimentsService.update(+id, updateExperimentDto);
+  }
+
   // crea una nueva vista
   @Post(':id/views')
   createView(@Param('id') id: string, @Body() createViewDto: CreateViewDto) {
@@ -46,7 +53,7 @@ export class ExperimentsController {
 
   // actualiza una vista en particular por cambios en widgets
   @Put(':id/views/:viewSlug')
-  update(
+  updateView(
     @Param('id') id: string,
     @Param('viewSlug') viewSlug: string,
     @Body() updateViewDto: UpdateViewDto,
