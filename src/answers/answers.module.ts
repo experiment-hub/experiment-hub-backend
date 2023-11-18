@@ -1,6 +1,6 @@
 import { Module } from '@nestjs/common';
-import { AnswerController } from 'src/controllers/answer.controller';
-import { AnswerService } from 'src/services/answer.service';
+import { AnswerController } from 'src/answers/answers.controller';
+import { AnswerService } from 'src/answers/answers.service';
 @Module({
   controllers: [AnswerController],
   providers: [AnswerService],

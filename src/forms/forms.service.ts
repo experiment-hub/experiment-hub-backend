@@ -1,7 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import { PrismaClient as PostgresClient } from '@prisma/postgres/client';
 import { PrismaClient as MongoClient } from '@prisma/mongo/client';
-import { FormDto } from 'src/dtos/form.dto';
+import { FormDto } from 'src/forms/form.dto';
 @Injectable()
 export class FormService {
   private readonly postgresPrisma: PostgresClient;

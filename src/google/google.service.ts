@@ -1,7 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
-import { UserService } from './user.service';
-import { UserType } from '../enums/user.enum';
+import { UserService } from '../users/users.service';
+import { UserType } from '../users/user.enum';
 
 @Injectable()
 export class GoogleService {
