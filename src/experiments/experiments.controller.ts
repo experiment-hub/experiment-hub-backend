@@ -4,6 +4,7 @@ import {
   Delete,
   Get,
   Param,
+  ParseIntPipe,
   Patch,
   Post,
   Put,
@@ -29,8 +30,8 @@ export class ExperimentsController {
 
   // trae un experimento en particular
   @Get(':id')
-  findOne(@Param('id') id: string) {
-    return this.experimentsService.findOne(+id);
+  findOne(@Param('id', ParseIntPipe) id: number) {
+    return this.experimentsService.findOne(id);
   }
 
   // crea un nuevo experimento
@@ -41,20 +42,23 @@ export class ExperimentsController {
 
   // update de un experimento
   @Patch(':id')
-  update(@Param('id') id: string, updateExperimentDto: UpdateExperimentDto) {
-    return this.experimentsService.update(+id, updateExperimentDto);
+  update(
+    @Param('id', ParseIntPipe) id: number,
+    @Body() updateExperimentDto: UpdateExperimentDto,
+  ) {
+    return this.experimentsService.update(id, updateExperimentDto);
   }
 
   // crea una nueva vista
   @Post(':id/views')
-  createView(@Param('id') id: string, @Body() createViewDto: CreateViewDto) {
+  createView(@Param('id', ParseIntPipe) id: number, @Body() createViewDto: CreateViewDto) {
     return this.experimentsService.createView(id, createViewDto);
   }
 
   // actualiza una vista en particular por cambios en widgets
   @Put(':id/views/:viewSlug')
   updateView(
-    @Param('id') id: string,
+    @Param('id', ParseIntPipe) id: number,
     @Param('viewSlug') viewSlug: string,
     @Body() updateViewDto: UpdateViewDto,
   ) {
@@ -62,14 +66,17 @@ export class ExperimentsController {
   }
 
   // actualiza los nodos de un experimento en particular
-  @Patch(':id/nodes')
-  updateNodes(@Param('id') id: string, @Body() updateNodesDto: UpdateNodesDto) {
+  @Put(':id/nodes')
+  updateNodes(
+    @Param('id', ParseIntPipe) id: number,
+    @Body() updateNodesDto: UpdateNodesDto,
+  ) {
     return this.experimentsService.updateNodes(id, updateNodesDto);
   }
 
   // elimina un experimento en particular
   @Delete(':id')
-  remove(@Param('id') id: string) {
-    return this.experimentsService.remove(+id);
+  remove(@Param('id', ParseIntPipe) id: number) {
+    return this.experimentsService.remove(id);
   }
 }

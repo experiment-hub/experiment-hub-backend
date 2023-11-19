@@ -9,9 +9,9 @@ datasource db {
 }
 
 model Experiment {
-    id    String           @id @default(auto()) @map("_id") @db.ObjectId
-    slug  String           @unique
-    // nodes are a list of json objects
+    id   String @id @default(auto()) @map("_id") @db.ObjectId
+    slug String @unique
+
     nodes ExperimentNode[]
     views ExperimentView[]
 
@@ -29,13 +29,21 @@ type ExperimentNode {
     id         String
     nodeType   String
     nodeFamily String
+    props      Json?
 }
 
 type ExperimentView {
     name        String
     description String
     slug        String
-    widgets     Json[]
+    widgets     ExperimentWidget[]
+}
+
+type ExperimentWidget {
+    id        String
+    widgetFamily String
+    template  String
+    props     Json?
 }
 
 model Answer {

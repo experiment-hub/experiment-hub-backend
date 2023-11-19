@@ -10,64 +10,80 @@ export class TeamService {
   }
 
   async createTeam(createTeamDto: CreateTeamDto) {
-    try {
-      const newTeam = await this.prisma.team.create({
-        data: {
-          name: createTeamDto.name,
-          description: createTeamDto.description,
-          users: {
-            create: [
-              {
-                userId: createTeamDto.userId,
-              },
-            ],
-          },
+    const newTeam = await this.prisma.team.create({
+      data: {
+        name: createTeamDto.name,
+        description: createTeamDto.description,
+        users: {
+          create: [
+            {
+              userId: createTeamDto.userId,
+            },
+          ],
         },
-      });
-      return newTeam;
-    } catch (error) {
-      throw error;
-    }
+      },
+    });
+    return newTeam;
   }
 
   async updateTeam(id: number, updateTeamDto: UpdateTeamDto) {
-    try {
-      const updatedTeam = await this.prisma.team.update({
-        where: { pk: id },
-        data: updateTeamDto,
-      });
-      return updatedTeam;
-    } catch (error) {
-      throw error;
-    }
+    const updatedTeam = await this.prisma.team.update({
+      where: { pk: id },
+      data: updateTeamDto,
+    });
+    return updatedTeam;
   }
 
   async getTeamById(id: number) {
-    try {
-      const team = await this.prisma.team.findUnique({
-        where: { pk: id },
-      });
-      return team;
-    } catch (error) {
-      throw error;
-    }
+    const team = await this.prisma.team.findUnique({
+      where: { pk: id },
+      include: {
+        users: {
+          select: {
+            user: true,
+          },
+        },
+        experiments: true,
+      },
+    });
+    return team;
+  }
+
+  async getTeamMembers(id: number) {
+    const team = await this.prisma.team.findUnique({
+      where: { pk: id },
+      include: {
+        users: {
+          select: {
+            user: true,
+          },
+        },
+      },
+    });
+    return team.users;
+  }
+
+  async getTeamExperiments(id: number) {
+    const team = await this.prisma.team.findUnique({
+      where: { pk: id },
+      include: {
+        experiments: true,
+      },
+    });
+    return team.experiments;
   }
 
   async listTeams() {
-    try {
-      const teams = await this.prisma.team.findMany({
-        include: {
-          users: {
-            select: {
-              user: true,
-            },
+    const teams = await this.prisma.team.findMany({
+      include: {
+        users: {
+          select: {
+            user: true,
           },
-          experiments: true,
         },
-      });
-      return teams;
-    } catch (error) {
-      throw error;
-    }
+        experiments: true,
+      },
+    });
+    return teams;
   }
 }

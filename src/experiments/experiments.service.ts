@@ -54,6 +54,7 @@ export class ExperimentsService {
       include: {
         team: {
           select: {
+            pk: true,
             name: true,
             description: true,
             users: {
@@ -65,7 +66,31 @@ export class ExperimentsService {
         },
       },
     });
-    return postgresExperiments;
+
+    const mongoExperiments = await this.mongoPrisma.experiment.findMany({
+      select: {
+        id: true,
+        _count: {
+          select: {
+            answers: true,
+          },
+        },
+      },
+    });
+
+    // merge the two experiments arrays
+    const experiments = postgresExperiments.map((postgresExperiment) => {
+      const mongoExperiment = mongoExperiments.find(
+        (mongoExperiment) => mongoExperiment.id === postgresExperiment.mongoId,
+      );
+
+      return {
+        ...postgresExperiment,
+        ...mongoExperiment,
+      };
+    });
+
+    return experiments;
   }
 
   async findByTeamId(teamId: number) {
@@ -78,9 +103,20 @@ export class ExperimentsService {
   }
 
   async findOne(id: number) {
+    console.log({ id });
     const postgresExperiment = await this.postgresPrisma.experiment.findUnique({
       where: { pk: id },
+      include: {
+        team: {
+          select: {
+            pk: true,
+            name: true,
+            description: true,
+          },
+        },
+      },
     });
+
     const mongoExperiment = await this.mongoPrisma.experiment.findUniqueOrThrow(
       {
         where: {
@@ -92,9 +128,13 @@ export class ExperimentsService {
     return { postgresExperiment, mongoExperiment };
   }
 
-  async createView(id: string, createViewDto: CreateViewDto) {
+  async createView(id: number, createViewDto: CreateViewDto) {
+    const { mongoId } = await this.postgresPrisma.experiment.findUnique({
+      where: { pk: id },
+    });
+
     const updatedExperiment = await this.mongoPrisma.experiment.update({
-      where: { id: id },
+      where: { id: mongoId },
 
       data: {
         views: {
@@ -111,9 +151,13 @@ export class ExperimentsService {
     return updatedExperiment;
   }
 
-  async updateView(id: string, viewSlug: string, updateViewDto: UpdateViewDto) {
+  async updateView(id: number, viewSlug: string, updateViewDto: UpdateViewDto) {
+    const { mongoId } = await this.postgresPrisma.experiment.findUnique({
+      where: { pk: id },
+    });
+
     const updatedExperiment = await this.mongoPrisma.experiment.update({
-      where: { id: id },
+      where: { id: mongoId },
       data: {
         views: {
           updateMany: {
@@ -133,9 +177,13 @@ export class ExperimentsService {
     return updatedExperiment;
   }
 
-  async updateNodes(id: string, updateNodesDto: UpdateNodesDto) {
+  async updateNodes(id: number, updateNodesDto: UpdateNodesDto) {
+    const { mongoId } = await this.postgresPrisma.experiment.findUnique({
+      where: { pk: id },
+    });
+
     const updatedExperiment = await this.mongoPrisma.experiment.update({
-      where: { id: id },
+      where: { id: mongoId },
 
       data: {
         nodes: {
@@ -150,6 +198,8 @@ export class ExperimentsService {
   async update(id: number, updateExperimentDto: UpdateExperimentDto) {
     const { name, slug, coverImage, description, teamId } = updateExperimentDto;
 
+    console.log({ updateExperimentDto });
+
     const postgresExperiment = await this.postgresPrisma.experiment.update({
       where: { pk: id },
       data: {
@@ -157,14 +207,35 @@ export class ExperimentsService {
         slug,
         description,
         coverImage,
-        teamId: +teamId,
+      },
+      include: {
+        team: {
+          select: {
+            pk: true,
+            name: true,
+            description: true,
+          },
+        },
       },
     });
 
-    return postgresExperiment;
+    return { postgresExperiment };
   }
 
-  remove(id: number) {
-    return `This action removes a #${id} experiment`;
+  async remove(id: number) {
+    const postgresExperiment = await this.postgresPrisma.experiment.delete({
+      where: { pk: id },
+    });
+
+    const mongoExperiment = await this.mongoPrisma.experiment.delete({
+      where: { id: postgresExperiment.mongoId },
+    });
+
+    console.log({
+      postgresExperiment,
+      mongoExperiment,
+    });
+
+    return `Removed experiment`;
   }
 }

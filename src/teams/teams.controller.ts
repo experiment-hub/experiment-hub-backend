@@ -51,7 +51,6 @@ export class TeamController {
   async getTeam(@Param('id', ParseIntPipe) id: number) {
     try {
       const team = await this.teamService.getTeamById(id);
-      // TODO: devolver miembros y experimentos
       return team;
     } catch (error) {
       throw new HttpException(
@@ -63,12 +62,12 @@ export class TeamController {
 
   @Get(':id/members')
   async getTeamMembers(@Param('id', ParseIntPipe) id: number) {
-    // TODO: devolver miembros
+    return await this.teamService.getTeamMembers(id);
   }
 
-  @Get(':id/expeiments')
+  @Get(':id/experiments')
   async getTeamExperiments(@Param('id', ParseIntPipe) id: number) {
-    // TODO: devolver miembros
+    return await this.teamService.getTeamExperiments(id);
   }
 
   @Post()
@@ -99,19 +98,6 @@ export class TeamController {
       );
     }
   }
-
-  // @Get()
-  // async listTeams(@Query('userId') userId?: number) {
-  //   try {
-  //     const teams = await this.teamService.listTeams(userId);
-  //     return teams;
-  //   } catch (error) {
-  //     throw new HttpException(
-  //       'An error occurred while finding teams.',
-  //       HttpStatus.INTERNAL_SERVER_ERROR,
-  //     );
-  //   }
-  // }
 
   @Post(':id/media')
   @UseInterceptors(FileInterceptor('file'))
