@@ -34,6 +34,11 @@ export class ExperimentsController {
     return this.experimentsService.findOne(id);
   }
 
+  @Get('/slug/:slug')
+  findBySlug(@Param('slug') slug: string) {
+    return this.experimentsService.findBySlug(slug);
+  }
+
   // crea un nuevo experimento
   @Post()
   create(@Body() createExperimentDto: CreateExperimentDto) {
@@ -51,7 +56,10 @@ export class ExperimentsController {
 
   // crea una nueva vista
   @Post(':id/views')
-  createView(@Param('id', ParseIntPipe) id: number, @Body() createViewDto: CreateViewDto) {
+  createView(
+    @Param('id', ParseIntPipe) id: number,
+    @Body() createViewDto: CreateViewDto,
+  ) {
     return this.experimentsService.createView(id, createViewDto);
   }
 
@@ -63,6 +71,14 @@ export class ExperimentsController {
     @Body() updateViewDto: UpdateViewDto,
   ) {
     return this.experimentsService.updateView(id, viewSlug, updateViewDto);
+  }
+
+  @Delete(':id/views/:viewSlug')
+  deleteView(
+    @Param('id', ParseIntPipe) id: number,
+    @Param('viewSlug') viewSlug: string,
+  ) {
+    return this.experimentsService.deleteView(id, viewSlug);
   }
 
   // actualiza los nodos de un experimento en particular

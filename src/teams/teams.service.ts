@@ -1,26 +1,31 @@
 import { Injectable } from '@nestjs/common';
-import { PrismaClient } from '@prisma/postgres/client';
+import { PrismaClient as MongoClient } from '@prisma/mongo/client';
+import { PrismaClient as PostgresClient } from '@prisma/postgres/client';
 import { CreateTeamDto } from './dto/create-team.dto';
 
 const userSelector = {
   select: {
     pk: true,
-    username: true,
+    email: true,
     name: true,
+    username: true,
     avatar: true,
+    organization: true,
   },
 };
 
 @Injectable()
 export class TeamsService {
-  private readonly prisma: PrismaClient;
+  private readonly postgresPrisma: PostgresClient;
+  private readonly mongoPrisma: MongoClient;
 
   constructor() {
-    this.prisma = new PrismaClient();
+    this.postgresPrisma = new PostgresClient();
+    this.mongoPrisma = new MongoClient();
   }
 
   async createTeam(createTeamDto: CreateTeamDto) {
-    const newTeam = await this.prisma.team.create({
+    const newTeam = await this.postgresPrisma.team.create({
       data: {
         name: createTeamDto.name,
         description: createTeamDto.description,
@@ -47,7 +52,7 @@ export class TeamsService {
   // }
 
   async getTeamById(id: number) {
-    const { users, ...team } = await this.prisma.team.findUnique({
+    const { users, ...team } = await this.postgresPrisma.team.findUnique({
       where: { pk: id },
       include: {
         users: {
@@ -55,18 +60,20 @@ export class TeamsService {
             user: userSelector,
           },
         },
-        experiments: true,
       },
     });
+
+    const experiments = await this.getTeamExperiments(id);
 
     return {
       ...team,
       users: users.map((user) => user.user),
+      experiments,
     };
   }
 
   async getTeamMembers(id: number) {
-    const team = await this.prisma.team.findUnique({
+    const team = await this.postgresPrisma.team.findUnique({
       where: { pk: id },
       include: {
         users: {
@@ -80,31 +87,96 @@ export class TeamsService {
   }
 
   async getTeamExperiments(id: number) {
-    const team = await this.prisma.team.findUnique({
+    const team = await this.postgresPrisma.team.findUnique({
       where: { pk: id },
       include: {
-        experiments: true,
+        experiments: {
+          select: {
+            pk: true,
+            name: true,
+            slug: true,
+            description: true,
+            coverImage: true,
+            mongoId: true,
+            team: {
+              select: {
+                pk: true,
+                name: true,
+                description: true,
+                users: {
+                  select: {
+                    user: {
+                      select: {
+                        email: true,
+                        name: true,
+                        username: true,
+                        avatar: true,
+                        organization: true,
+                      },
+                    },
+                  },
+                },
+              },
+            },
+          },
+        },
       },
     });
-    return team.experiments;
+
+    const postgresExperiments = team.experiments;
+
+    const mongoExperiments = await this.mongoPrisma.experiment.findMany({
+      where: {
+        id: { in: team.experiments.map((experiment) => experiment.mongoId) },
+      },
+      select: {
+        id: true,
+        nodes: true,
+        views: true,
+        _count: {
+          select: {
+            answers: true,
+          },
+        },
+      },
+    });
+
+    const experiments = postgresExperiments.map((postgresExperiment) => {
+      const mongoExperiment = mongoExperiments.find(
+        (mongoExperiment) => mongoExperiment.id === postgresExperiment.mongoId,
+      );
+
+      return {
+        ...postgresExperiment,
+        team: {
+          ...postgresExperiment.team,
+          users: postgresExperiment.team.users.map((user) => user.user),
+        },
+        nodes: mongoExperiment.nodes,
+        views: mongoExperiment.views,
+        answers: mongoExperiment._count.answers,
+      };
+    });
+
+    return experiments;
   }
 
   async deleteTeam(id: number) {
-    const members = await this.prisma.teamUser.deleteMany({
+    const members = await this.postgresPrisma.teamUser.deleteMany({
       where: {
         teamId: id,
       },
     });
 
-    const team = await this.prisma.team.delete({
+    const team = await this.postgresPrisma.team.delete({
       where: { pk: id },
     });
-    
+
     return team;
   }
 
   async listTeams() {
-    const teams = await this.prisma.team.findMany({
+    const teams = await this.postgresPrisma.team.findMany({
       include: {
         users: {
           select: {

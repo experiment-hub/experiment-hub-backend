@@ -45,12 +45,31 @@ export class ExperimentsService {
 
   async findAll() {
     const postgresExperiments = await this.postgresPrisma.experiment.findMany({
-      include: {
+      select: {
+        pk: true,
+        name: true,
+        slug: true,
+        description: true,
+        coverImage: true,
+        mongoId: true,
         team: {
           select: {
             pk: true,
             name: true,
             description: true,
+            users: {
+              select: {
+                user: {
+                  select: {
+                    email: true,
+                    name: true,
+                    username: true,
+                    avatar: true,
+                    organization: true,
+                  },
+                },
+              },
+            },
           },
         },
       },
@@ -59,6 +78,8 @@ export class ExperimentsService {
     const mongoExperiments = await this.mongoPrisma.experiment.findMany({
       select: {
         id: true,
+        nodes: true,
+        views: true,
         _count: {
           select: {
             answers: true,
@@ -75,7 +96,13 @@ export class ExperimentsService {
 
       return {
         ...postgresExperiment,
-        ...mongoExperiment,
+        team: {
+          ...postgresExperiment.team,
+          users: postgresExperiment.team.users.map((user) => user.user),
+        },
+        nodes: mongoExperiment.nodes,
+        views: mongoExperiment.views,
+        answers: mongoExperiment._count.answers,
       };
     });
 
@@ -90,15 +117,43 @@ export class ExperimentsService {
     return postgresExperiments;
   }
 
+  async findBySlug(slug: string) {
+    const { pk } = await this.postgresPrisma.experiment.findFirst({
+      where: {
+        slug,
+      },
+    });
+    return await this.findOne(pk);
+  }
+
   async findOne(id: number) {
     const postgresExperiment = await this.postgresPrisma.experiment.findUnique({
       where: { pk: id },
-      include: {
+      select: {
+        pk: true,
+        name: true,
+        slug: true,
+        description: true,
+        coverImage: true,
+        mongoId: true,
         team: {
           select: {
             pk: true,
             name: true,
             description: true,
+            users: {
+              select: {
+                user: {
+                  select: {
+                    email: true,
+                    name: true,
+                    username: true,
+                    avatar: true,
+                    organization: true,
+                  },
+                },
+              },
+            },
           },
         },
       },
@@ -109,10 +164,28 @@ export class ExperimentsService {
         where: {
           id: postgresExperiment.mongoId,
         },
+        select: {
+          nodes: true,
+          views: true,
+          _count: {
+            select: {
+              answers: true,
+            },
+          },
+        },
       },
     );
 
-    return { postgresExperiment, mongoExperiment };
+    return {
+      ...postgresExperiment,
+      team: {
+        ...postgresExperiment.team,
+        users: postgresExperiment.team.users.map((user) => user.user),
+      },
+      nodes: mongoExperiment.nodes,
+      views: mongoExperiment.views,
+      answers: mongoExperiment._count.answers,
+    };
   }
 
   async createView(id: number, createViewDto: CreateViewDto) {
@@ -122,7 +195,6 @@ export class ExperimentsService {
 
     const updatedExperiment = await this.mongoPrisma.experiment.update({
       where: { id: mongoId },
-
       data: {
         views: {
           push: {
@@ -135,7 +207,7 @@ export class ExperimentsService {
       },
     });
 
-    return updatedExperiment;
+    return await this.findOne(id);
   }
 
   async updateView(id: number, viewSlug: string, updateViewDto: UpdateViewDto) {
@@ -161,7 +233,28 @@ export class ExperimentsService {
       },
     });
 
-    return updatedExperiment;
+    return await this.findOne(id);
+  }
+
+  async deleteView(id: number, viewSlug: string) {
+    const { mongoId } = await this.postgresPrisma.experiment.findUnique({
+      where: { pk: id },
+    });
+
+    const updatedExperiment = await this.mongoPrisma.experiment.update({
+      where: { id: mongoId },
+      data: {
+        views: {
+          deleteMany: {
+            where: {
+              slug: viewSlug,
+            },
+          },
+        },
+      },
+    });
+
+    return await this.findOne(id);
   }
 
   async updateNodes(id: number, updateNodesDto: UpdateNodesDto) {
@@ -178,7 +271,7 @@ export class ExperimentsService {
       },
     });
 
-    return updatedExperiment;
+    return await this.findOne(id);
   }
 
   async update(id: number, updateExperimentDto: UpdateExperimentDto) {
@@ -203,7 +296,7 @@ export class ExperimentsService {
       },
     });
 
-    return { postgresExperiment };
+    return await this.findOne(id);
   }
 
   async remove(id: number) {

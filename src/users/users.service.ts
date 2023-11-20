@@ -32,12 +32,37 @@ export class UsersService {
       include: {
         teams: {
           select: {
-            team: true,
+            team: {
+              select: {
+                pk: true,
+                name: true,
+                slug: true,
+                coverImage: true,
+                description: true,
+                users: {
+                  select: {
+                    user: {
+                      select: {
+                        pk: true,
+                        email: true,
+                        name: true,
+                        username: true,
+                        avatar: true,
+                        organization: true,
+                      },
+                    },
+                  },
+                },
+              },
+            },
           },
         },
       },
     });
-    return user.teams.map((team) => team.team);
+    return user.teams.map((team) => ({
+      ...team.team,
+      users: team.team.users.map((user) => user.user),
+    }));
   }
 
   async findByUsername(username: string) {
