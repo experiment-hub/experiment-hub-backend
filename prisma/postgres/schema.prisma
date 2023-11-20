@@ -9,55 +9,70 @@ datasource db {
 }
 
 model User {
-    pk          Int       @id @default(autoincrement())
-    email       String    @unique
-    password    String
-    name        String
-    createdAt   DateTime  @default(now()) @map("created_at")
-    updatedAt   DateTime  @updatedAt @map("update_at")
-    type        UserType
-    teams       TeamUser[]
+    pk       Int    @id @default(autoincrement())
+    email    String @unique
+    password String
+
+    name         String
+    username     String @unique
+    avatar       String
+    organization String
+
+    createdAt DateTime @default(now()) @map("created_at")
+    updatedAt DateTime @updatedAt @map("update_at")
+
+    teams TeamUser[]
+
     @@unique([pk])
     @@map("users")
 }
 
-enum UserType {
-  SCIENTIST
-  REGULAR
-}
-
 model Team {
-    pk          Int       @id @default(autoincrement())
+    pk          Int     @id @default(autoincrement())
     name        String
+    slug        String  @unique
+    
+    coverImage  String?
     description String?
-    createdAt   DateTime  @default(now()) @map("created_at")
-    updatedAt   DateTime  @updatedAt @map("update_at")
+
+    createdAt DateTime @default(now()) @map("created_at")
+    updatedAt DateTime @updatedAt @map("update_at")
+
     users       TeamUser[]
-    forms       Form[]
+    experiments Experiment[]
+
     @@unique([pk])
     @@map("teams")
 }
 
-model Form {
-    pk          Int       @id @default(autoincrement())
-    title       String
-    content     String
-    createdAt   DateTime  @default(now()) @map("created_at")
-    updatedAt   DateTime  @updatedAt @map("update_at")
-    team        Team      @relation(fields: [teamId], references: [pk])
-    teamId      Int
-    formMongoId String
-    @@unique([pk, formMongoId])
-    @@map("forms")
+model Experiment {
+    pk          Int     @id @default(autoincrement())
+    name        String
+    description String?
+
+    slug       String
+    coverImage String?
+
+    createdAt DateTime @default(now()) @map("created_at")
+    updatedAt DateTime @updatedAt @map("update_at")
+
+    team    Team   @relation(fields: [teamId], references: [pk])
+    teamId  Int
+    mongoId String
+
+    @@unique([pk, mongoId])
+    @@map("experiments")
 }
 
 model TeamUser {
-    pk          Int       @id @default(autoincrement())
-    user        User      @relation(fields: [userId], references: [pk])
-    userId      Int
-    team        Team      @relation(fields: [teamId], references: [pk])
-    teamId      Int
-    createdAt   DateTime  @default(now()) @map("created_at")
+    pk     Int  @id @default(autoincrement())
+    user   User @relation(fields: [userId], references: [pk])
+    userId Int
+    team   Team @relation(fields: [teamId], references: [pk])
+    teamId Int
+
+    createdAt DateTime @default(now()) @map("created_at")
+
     @@unique([userId, teamId])
     @@map("team_users")
 }

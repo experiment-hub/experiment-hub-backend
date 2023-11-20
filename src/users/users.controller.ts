@@ -1,53 +1,31 @@
 import {
-  Controller,
-  Post,
   Body,
+  Controller,
   Get,
-  Param,
-  Put,
-  HttpStatus,
   HttpException,
-  UseGuards,
+  HttpStatus,
+  Param,
+  ParseIntPipe,
+  Patch,
 } from '@nestjs/common';
-import { UserService } from './users.service';
-import {
-  ApiBearerAuth,
-  ApiCreatedResponse,
-  ApiOkResponse,
-  ApiTags,
-} from '@nestjs/swagger';
-import { AuthEntity } from '../auth/entities/auth.entity';
-import { LoginDto } from 'src/auth/dto/login.dto';
-import { CreateUserDto, UpdateUserDto } from 'src/users/user.dto';
-import { JwtAuthGuard } from 'src/auth/jwt-auth.guard';
-import { UserEntity } from 'src/users/user.entity';
+import { ApiTags } from '@nestjs/swagger';
+import { TeamsService } from 'src/teams/teams.service';
+
+import { UpdateUserDto } from './dto/update-user.dto';
+import { UsersService } from './users.service';
 
 @Controller('users')
 @ApiTags('users')
-export class UserController {
-  constructor(private readonly userService: UserService) {}
-
-  @Post()
-  @ApiCreatedResponse({ type: UserEntity })
-  async createUser(@Body() createUserDto: CreateUserDto) {
-    try {
-      const newUser = await this.userService.createUser(createUserDto);
-      return newUser;
-    } catch (error) {
-      throw new HttpException(
-        `An error occurred while creating the user: ${error.message}`,
-        HttpStatus.INTERNAL_SERVER_ERROR,
-      );
-    }
-  }
+export class UsersController {
+  constructor(
+    private readonly usersService: UsersService,
+    private readonly teamsService: TeamsService,
+  ) {}
 
   @Get(':id')
-  @UseGuards(JwtAuthGuard)
-  @ApiBearerAuth()
-  @ApiOkResponse({ type: UserEntity })
-  async getUser(@Param('id') id: string) {
+  async getUser(@Param('id', ParseIntPipe) id: number) {
     try {
-      return this.userService.getUserById(+id);
+      return this.usersService.findById(id);
     } catch (error) {
       throw new HttpException(
         `An error occurred while finding the user: ${error.message}`,
@@ -56,47 +34,47 @@ export class UserController {
     }
   }
 
-  @Put(':id')
-  @UseGuards(JwtAuthGuard)
-  @ApiBearerAuth()
-  @ApiOkResponse({ type: UserEntity })
+  @Get(':id/teams')
+  async getUserTeams(@Param('id', ParseIntPipe) id: number) {
+    try {
+      const teams = await this.usersService.findUserTeams(id);
+      return teams;
+    } catch (error) {
+      throw new HttpException(
+        `An error occurred while finding the user: ${error.message}`,
+        HttpStatus.INTERNAL_SERVER_ERROR,
+      );
+    }
+  }
+
+  @Get(':id/experiments')
+  async getUserExperiments(@Param('id', ParseIntPipe) id: number) {
+    try {
+      const teams = await this.usersService.findUserTeams(id);
+
+      const experiments = await Promise.all(
+        teams.map((team) => this.teamsService.getTeamExperiments(team.pk)),
+      ).then((experiments) => experiments.flat());
+
+      return experiments;
+    } catch (error) {
+      throw new HttpException(
+        `An error occurred while finding the user: ${error.message}`,
+        HttpStatus.INTERNAL_SERVER_ERROR,
+      );
+    }
+  }
+
+  @Patch(':id')
   async updateUser(
-    @Param('id') id: string,
+    @Param('id', ParseIntPipe) id: number,
     @Body() updateUserDto: UpdateUserDto,
   ) {
     try {
-      return this.userService.updateUser(+id, updateUserDto);
+      return this.usersService.updateUser(id, updateUserDto);
     } catch (error) {
       throw new HttpException(
         `An error occurred while updating the user: ${error.message}`,
-        HttpStatus.INTERNAL_SERVER_ERROR,
-      );
-    }
-  }
-
-  @Get()
-  @UseGuards(JwtAuthGuard)
-  @ApiBearerAuth()
-  @ApiOkResponse({ type: UserEntity, isArray: true })
-  async listUsers() {
-    try {
-      return this.userService.listUsers();
-    } catch (error) {
-      throw new HttpException(
-        `An error occurred while finding users: ${error.message}`,
-        HttpStatus.INTERNAL_SERVER_ERROR,
-      );
-    }
-  }
-
-  @Post('login')
-  @ApiOkResponse({ type: AuthEntity })
-  login(@Body() { email, password }: LoginDto) {
-    try {
-      return this.userService.login(email, password);
-    } catch (error) {
-      throw new HttpException(
-        `An error occurred on login: ${error.message}`,
         HttpStatus.INTERNAL_SERVER_ERROR,
       );
     }

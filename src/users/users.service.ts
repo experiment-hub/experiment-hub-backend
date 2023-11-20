@@ -1,82 +1,118 @@
-import {
-  Injectable,
-  NotFoundException,
-  UnauthorizedException,
-} from '@nestjs/common';
+import { Injectable } from '@nestjs/common';
 import { PrismaClient } from '@prisma/postgres/client';
-import { JwtService } from '@nestjs/jwt';
-import { AuthEntity } from '../auth/entities/auth.entity';
-import { CreateUserDto, UpdateUserDto } from 'src/users/user.dto';
 import * as bcrypt from 'bcrypt';
+import { CreateUserDto } from './dto/create-user.dto';
+import { UpdateUserDto } from './dto/update-user.dto';
 
 const roundsOfHashing = +process.env.ROUNDS;
 
 @Injectable()
-export class UserService {
+export class UsersService {
   private readonly prisma: PrismaClient;
 
-  constructor(private jwtService: JwtService) {
+  constructor() {
     this.prisma = new PrismaClient();
   }
 
-  async createUser(createUserDto: CreateUserDto) {
-    try {
-      const hashedPassword = await bcrypt.hash(
-        createUserDto.password,
-        roundsOfHashing,
-      );
+  async findById(id: number) {
+    const { password, ...user } = await this.prisma.user.findUnique({
+      where: { pk: id },
+    });
+    return user;
+  }
 
-      createUserDto.password = hashedPassword;
+  async findOne(email: string) {
+    const user = await this.prisma.user.findUnique({ where: { email } });
+    return user;
+  }
 
-      const newUser = await this.prisma.user.create({
-        data: {
-          email: createUserDto.email,
-          password: createUserDto.password,
-          type: createUserDto.type,
-          name: createUserDto.name,
-        },
-      });
-
-      // Create a new team for the user using the user's name as the team's name
-      const newTeam = await this.prisma.team.create({
-        data: {
-          name: createUserDto.name,
-          users: {
-            create: [
-              {
-                userId: newUser.pk,
+  async findUserTeams(id: number) {
+    const user = await this.prisma.user.findUnique({
+      where: { pk: id },
+      include: {
+        teams: {
+          select: {
+            team: {
+              select: {
+                pk: true,
+                name: true,
+                slug: true,
+                coverImage: true,
+                description: true,
+                users: {
+                  select: {
+                    user: {
+                      select: {
+                        pk: true,
+                        email: true,
+                        name: true,
+                        username: true,
+                        avatar: true,
+                        organization: true,
+                      },
+                    },
+                  },
+                },
               },
-            ],
+            },
           },
         },
-      });
-
-      return { newUser, newTeam };
-    } catch (error) {
-      throw error; // Rethrow the error to be caught by the controller
-    }
+      },
+    });
+    return user.teams.map((team) => ({
+      ...team.team,
+      users: team.team.users.map((user) => user.user),
+    }));
   }
 
-  async login(email: string, password: string): Promise<AuthEntity> {
-    const user = await this.prisma.user.findUnique({ where: { email: email } });
-
-    if (!user) {
-      throw new NotFoundException(`No user found for email: ${email}`);
-    }
-
-    const isPasswordValid = await bcrypt.compare(password, user.password);
-
-    if (!isPasswordValid) {
-      throw new UnauthorizedException('Wrong email/password combination');
-    }
-
-    return {
-      accessToken: this.jwtService.sign({ userId: user.pk }),
-    };
+  async findByUsername(username: string) {
+    const { password, ...user } = await this.prisma.user.findFirst({
+      where: { username },
+      include: {
+        teams: {
+          select: {
+            team: true,
+          },
+        },
+      },
+    });
+    return user;
   }
 
-  async getUserById(id: number) {
-    return this.prisma.user.findUnique({ where: { pk: id } });
+  async createUser(createUserDto: CreateUserDto) {
+    const hashedPassword = await bcrypt.hash(
+      createUserDto.password,
+      roundsOfHashing,
+    );
+
+    createUserDto.password = hashedPassword;
+
+    const user = await this.prisma.user.create({
+      data: {
+        email: createUserDto.email,
+        password: createUserDto.password,
+        name: createUserDto.name,
+        organization: createUserDto.organization,
+        username: createUserDto.username,
+        avatar: '',
+        teams: {
+          create: [
+            {
+              team: {
+                create: {
+                  name: `${createUserDto.name}'s Team`,
+                  slug: `${createUserDto.name
+                    .toLowerCase()
+                    .replace(' ', '-')}-team`,
+                },
+              },
+            },
+          ],
+        },
+      },
+    });
+
+    return { user };
   }
 
   async updateUser(id: number, updateUserDto: UpdateUserDto) {
@@ -87,11 +123,12 @@ export class UserService {
       );
     }
 
-    const updatedUser = await this.prisma.user.update({
+    const { password, ...user } = await this.prisma.user.update({
       where: { pk: id },
       data: updateUserDto,
     });
-    return updatedUser;
+
+    return user;
   }
 
   async listUsers() {

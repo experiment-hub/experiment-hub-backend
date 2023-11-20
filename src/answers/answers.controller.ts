@@ -1,29 +1,41 @@
 import {
-  Controller,
-  Post,
   Body,
-  HttpStatus,
-  HttpException,
+  Controller,
   Get,
+  HttpException,
+  HttpStatus,
   Param,
-  Put,
+  ParseIntPipe,
+  Post,
 } from '@nestjs/common';
+import { CreateAnswerDto } from 'src/answers/answer.dto';
 import { AnswerService } from './answers.service';
-import { CreateAnswerDto, UpdateAnswerDto } from 'src/answers/answer.dto';
 
-@Controller('teams/:teamId/forms/:id/answers')
+@Controller('experiments/:id/answers')
 export class AnswerController {
   constructor(private readonly answerService: AnswerService) {}
 
+  @Get()
+  async listAnswers(@Param('id', ParseIntPipe) id: number) {
+    try {
+      const answers = await this.answerService.listAnswers(id);
+      return answers;
+    } catch (error) {
+      throw new HttpException(
+        'An error occurred while finding answers.',
+        HttpStatus.INTERNAL_SERVER_ERROR,
+      );
+    }
+  }
+
   @Post()
   async createAnswer(
+    @Param('id', ParseIntPipe) id: number,
     @Body() createAnswerDto: CreateAnswerDto,
-    @Param('id') formId: string,
-    @Param('teamId') teamId: string,
   ) {
     try {
       const newAnswer = await this.answerService.createAnswer(
-        formId,
+        id,
         createAnswerDto,
       );
       return newAnswer;
@@ -35,51 +47,35 @@ export class AnswerController {
     }
   }
 
-  @Put(':answerId')
-  async updateAnswer(
-    @Param('answerId') answerId: string,
-    @Body() updateAnswerDto: UpdateAnswerDto,
-  ) {
-    try {
-      const updatedAnswer = await this.answerService.updateAnswer(
-        answerId,
-        updateAnswerDto,
-      );
-      return updatedAnswer;
-    } catch (error) {
-      throw new HttpException(
-        'An error occurred while updating the answer.',
-        HttpStatus.INTERNAL_SERVER_ERROR,
-      );
-    }
-  }
+  // @Put(':answerId')
+  // async updateAnswer(
+  //   @Param('answerId') answerId: string,
+  //   @Body() updateAnswerDto: UpdateAnswerDto,
+  // ) {
+  //   try {
+  //     const updatedAnswer = await this.answerService.updateAnswer(
+  //       answerId,
+  //       updateAnswerDto,
+  //     );
+  //     return updatedAnswer;
+  //   } catch (error) {
+  //     throw new HttpException(
+  //       'An error occurred while updating the answer.',
+  //       HttpStatus.INTERNAL_SERVER_ERROR,
+  //     );
+  //   }
+  // }
 
-  @Get(':answerId')
-  async getAnswer(@Param('answerId') answerId: string) {
-    try {
-      const answer = await this.answerService.getAnswerById(answerId);
-      return answer;
-    } catch (error) {
-      throw new HttpException(
-        'An error occurred while finding the answer.',
-        HttpStatus.INTERNAL_SERVER_ERROR,
-      );
-    }
-  }
-
-  @Get()
-  async listAnswers(
-    @Param('id') formId: string,
-    @Param('teamId') teamId: string,
-  ) {
-    try {
-      const answers = await this.answerService.listAnswers(formId);
-      return answers;
-    } catch (error) {
-      throw new HttpException(
-        'An error occurred while finding answers.',
-        HttpStatus.INTERNAL_SERVER_ERROR,
-      );
-    }
-  }
+  // @Get(':answerId')
+  // async getAnswer(@Param('answerId') answerId: string) {
+  //   try {
+  //     const answer = await this.answerService.getAnswerById(answerId);
+  //     return answer;
+  //   } catch (error) {
+  //     throw new HttpException(
+  //       'An error occurred while finding the answer.',
+  //       HttpStatus.INTERNAL_SERVER_ERROR,
+  //     );
+  //   }
+  // }
 }

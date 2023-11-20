@@ -6,25 +6,55 @@ generator client {
 datasource db {
     provider = "mongodb"
     url      = env("MONGO_DATABASE_URL")
-}  
+}
 
-model Form {
-    id            String   @id @default(auto()) @map("_id") @db.ObjectId
-    title         String
-    description   String
-    body          Json?
-    createdAt     DateTime @default(now())
-    updatedAt     DateTime @updatedAt
-    answers       Answer[]
-    @@map("forms")
+model Experiment {
+    id   String @id @default(auto()) @map("_id") @db.ObjectId
+    slug String @unique
+
+    nodes ExperimentNode[]
+    views ExperimentView[]
+
+    createdAt DateTime @default(now())
+    updatedAt DateTime @updatedAt
+
+    answers Answer[]
+
+    @@unique([views.slug])
+    @@unique([nodes.id])
+    @@map("experiments")
+}
+
+type ExperimentNode {
+    id         String
+    nodeType   String
+    nodeFamily String
+    props      Json?
+}
+
+type ExperimentView {
+    name        String
+    description String
+    slug        String
+    widgets     ExperimentWidget[]
+}
+
+type ExperimentWidget {
+    id        String?
+    widgetFamily String
+    template  String
+    props     Json?
 }
 
 model Answer {
-    id            String   @id @default(auto()) @map("_id") @db.ObjectId
-    content       String
-    body          Json?
-    createdAt     DateTime @default(now())
-    form          Form     @relation(fields: [formId], references: [id])
-    formId        String   @map("form_id") @db.ObjectId
+    id   String @id @default(auto()) @map("_id") @db.ObjectId
+    body Json?
+
+    createdAt DateTime @default(now())
+    updatedAt DateTime @updatedAt
+
+    experiment   Experiment @relation(fields: [experimentId], references: [id])
+    experimentId String     @map("experiment_id") @db.ObjectId
+
     @@map("answers")
 }

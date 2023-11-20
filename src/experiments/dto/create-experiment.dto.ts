@@ -1,34 +1,29 @@
 import { ApiProperty } from '@nestjs/swagger';
-import { IsNotEmpty, IsString, IsNumber } from 'class-validator';
+import { IsNotEmpty, IsNumber, IsString } from 'class-validator';
 
-export class FormDto {
+export class CreateExperimentDto {
   @IsNotEmpty()
   @IsString()
   @ApiProperty()
-  title: string;
-
-  @IsNotEmpty()
-  @IsString()
-  @ApiProperty()
-  content: string;
-
-  @IsNotEmpty()
-  @IsNumber()
-  @ApiProperty()
-  teamId: number;
-
-  @IsNotEmpty()
-  @IsString()
-  @ApiProperty()
-  formMongoId: string;
-
-  @IsNotEmpty()
-  @IsString()
-  @ApiProperty()
-  body: string;
+  name: string;
 
   @IsNotEmpty()
   @IsString()
   @ApiProperty()
   description: string;
+
+  @IsNotEmpty()
+  @IsString()
+  @ApiProperty()
+  slug: string;
+
+  @IsNotEmpty()
+  @IsString()
+  @ApiProperty()
+  coverImage: string;
+
+  @IsNotEmpty()
+  @IsNumber()
+  @ApiProperty()
+  teamId: number;
 }

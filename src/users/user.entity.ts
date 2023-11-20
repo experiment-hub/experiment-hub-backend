@@ -1,7 +1,6 @@
 import { ApiProperty } from '@nestjs/swagger';
 import { User } from '@prisma/postgres/client';
 import { Exclude } from 'class-transformer';
-import { UserType } from 'src/users/user.enum';
 
 export class UserEntity implements User {
   constructor(partial: Partial<UserEntity>) {
@@ -21,10 +20,16 @@ export class UserEntity implements User {
   name: string;
 
   @ApiProperty()
+  username: string;
+
+  @ApiProperty()
+  avatar: string;
+
+  @ApiProperty()
   email: string;
 
   @ApiProperty()
-  type: UserType;
+  organization: string;
 
   @Exclude()
   password: string;
