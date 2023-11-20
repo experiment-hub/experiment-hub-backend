@@ -9,14 +9,19 @@ datasource db {
 }
 
 model User {
-    pk           Int        @id @default(autoincrement())
-    email        String     @unique
-    password     String
+    pk       Int    @id @default(autoincrement())
+    email    String @unique
+    password String
+
     name         String
+    username     String @unique
+    avatar       String
     organization String
-    createdAt    DateTime   @default(now()) @map("created_at")
-    updatedAt    DateTime   @updatedAt @map("update_at")
-    teams        TeamUser[]
+
+    createdAt DateTime @default(now()) @map("created_at")
+    updatedAt DateTime @updatedAt @map("update_at")
+
+    teams TeamUser[]
 
     @@unique([pk])
     @@map("users")
@@ -25,11 +30,14 @@ model User {
 model Team {
     pk          Int     @id @default(autoincrement())
     name        String
+    slug        String  @unique
+    
     coverImage  String?
     description String?
 
-    createdAt   DateTime     @default(now()) @map("created_at")
-    updatedAt   DateTime     @updatedAt @map("update_at")
+    createdAt DateTime @default(now()) @map("created_at")
+    updatedAt DateTime @updatedAt @map("update_at")
+
     users       TeamUser[]
     experiments Experiment[]
 
@@ -38,27 +46,31 @@ model Team {
 }
 
 model Experiment {
-    pk          Int      @id @default(autoincrement())
+    pk          Int     @id @default(autoincrement())
     name        String
-    slug        String
-    coverImage  String?
     description String?
-    createdAt   DateTime @default(now()) @map("created_at")
-    updatedAt   DateTime @updatedAt @map("update_at")
-    team        Team     @relation(fields: [teamId], references: [pk])
-    teamId      Int
-    mongoId     String
+
+    slug       String
+    coverImage String?
+
+    createdAt DateTime @default(now()) @map("created_at")
+    updatedAt DateTime @updatedAt @map("update_at")
+
+    team    Team   @relation(fields: [teamId], references: [pk])
+    teamId  Int
+    mongoId String
 
     @@unique([pk, mongoId])
     @@map("experiments")
 }
 
 model TeamUser {
-    pk        Int      @id @default(autoincrement())
-    user      User     @relation(fields: [userId], references: [pk])
-    userId    Int
-    team      Team     @relation(fields: [teamId], references: [pk])
-    teamId    Int
+    pk     Int  @id @default(autoincrement())
+    user   User @relation(fields: [userId], references: [pk])
+    userId Int
+    team   Team @relation(fields: [teamId], references: [pk])
+    teamId Int
+
     createdAt DateTime @default(now()) @map("created_at")
 
     @@unique([userId, teamId])

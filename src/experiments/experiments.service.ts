@@ -19,34 +19,28 @@ export class ExperimentsService {
 
   async create(createExperimentDto: CreateExperimentDto) {
     const { name, slug, coverImage, description, teamId } = createExperimentDto;
-    try {
-      const mongoExperiment = await this.mongoPrisma.experiment.create({
-        data: {
-          slug,
-          nodes: [],
-          views: [],
-        },
-      });
+    const mongoExperiment = await this.mongoPrisma.experiment.create({
+      data: {
+        slug,
+        nodes: [],
+        views: [],
+      },
+    });
 
-      console.log('Mongo Form:', mongoExperiment);
+    const { id } = mongoExperiment;
 
-      const { id } = mongoExperiment;
+    const postgresExperiment = await this.postgresPrisma.experiment.create({
+      data: {
+        name,
+        slug,
+        description,
+        coverImage,
+        mongoId: id,
+        teamId,
+      },
+    });
 
-      const postgresExperiment = await this.postgresPrisma.experiment.create({
-        data: {
-          name,
-          slug,
-          description,
-          coverImage,
-          mongoId: id,
-          teamId: +teamId,
-        },
-      });
-
-      return { mongoExperiment, postgresExperiment };
-    } catch (error) {
-      throw error; // Rethrow the error to be caught by the controller
-    }
+    return { mongoExperiment, postgresExperiment };
   }
 
   async findAll() {
@@ -57,11 +51,6 @@ export class ExperimentsService {
             pk: true,
             name: true,
             description: true,
-            users: {
-              select: {
-                user: true,
-              },
-            },
           },
         },
       },
@@ -94,7 +83,6 @@ export class ExperimentsService {
   }
 
   async findByTeamId(teamId: number) {
-    // get only the postgres experiments for the team
     const postgresExperiments = await this.postgresPrisma.experiment.findMany({
       where: { teamId },
     });
@@ -103,7 +91,6 @@ export class ExperimentsService {
   }
 
   async findOne(id: number) {
-    console.log({ id });
     const postgresExperiment = await this.postgresPrisma.experiment.findUnique({
       where: { pk: id },
       include: {
@@ -184,7 +171,6 @@ export class ExperimentsService {
 
     const updatedExperiment = await this.mongoPrisma.experiment.update({
       where: { id: mongoId },
-
       data: {
         nodes: {
           set: updateNodesDto.nodes,
@@ -197,8 +183,6 @@ export class ExperimentsService {
 
   async update(id: number, updateExperimentDto: UpdateExperimentDto) {
     const { name, slug, coverImage, description, teamId } = updateExperimentDto;
-
-    console.log({ updateExperimentDto });
 
     const postgresExperiment = await this.postgresPrisma.experiment.update({
       where: { pk: id },
@@ -231,11 +215,9 @@ export class ExperimentsService {
       where: { id: postgresExperiment.mongoId },
     });
 
-    console.log({
+    return {
       postgresExperiment,
       mongoExperiment,
-    });
-
-    return `Removed experiment`;
+    };
   }
 }

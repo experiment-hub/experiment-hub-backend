@@ -6,8 +6,8 @@ import {
   Post,
 } from '@nestjs/common';
 import { ApiCreatedResponse, ApiOkResponse, ApiTags } from '@nestjs/swagger';
-import { CreateUserDto } from 'src/users/user.dto';
-import { UserEntity } from 'src/users/user.entity';
+
+import { CreateUserDto } from 'src/users/dto/create-user.dto';
 import { UsersService } from 'src/users/users.service';
 import { AuthService } from './auth.service';
 import { LoginDto } from './dto/login.dto';
@@ -35,12 +35,14 @@ export class AuthController {
   }
 
   @Post('signup')
-  @ApiCreatedResponse({ type: UserEntity })
+  @ApiCreatedResponse({ type: AuthEntity })
   async createUser(@Body() createUserDto: CreateUserDto) {
     try {
-      const newUser = await this.usersService.createUser(createUserDto);
-      // TODO: login user on signup
-      return newUser;
+      const { password } = createUserDto;
+      const {
+        user: { email },
+      } = await this.usersService.createUser(createUserDto);
+      return this.authService.validateUser(email, password);
     } catch (error) {
       throw new HttpException(
         `An error occurred while creating the user: ${error.message}`,

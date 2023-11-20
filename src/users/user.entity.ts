@@ -20,6 +20,12 @@ export class UserEntity implements User {
   name: string;
 
   @ApiProperty()
+  username: string;
+
+  @ApiProperty()
+  avatar: string;
+
+  @ApiProperty()
   email: string;
 
   @ApiProperty()

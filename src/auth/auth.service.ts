@@ -16,20 +16,22 @@ export class AuthService {
   ) {}
 
   async validateUser(email: string, password: string): Promise<AuthEntity> {
-    const user = await this.usersService.findOne(email);
+    const { password: userPassword, ...user } = await this.usersService.findOne(
+      email,
+    );
 
     if (!user) {
       throw new NotFoundException(`No user found for email: ${email}`);
     }
 
-    const isPasswordValid = await bcrypt.compare(password, user.password);
+    const isPasswordValid = await bcrypt.compare(password, userPassword);
 
     if (!isPasswordValid) {
       throw new UnauthorizedException('Wrong email/password combination');
     }
 
     return {
-      accessToken: this.jwtService.sign({ userId: user.pk }),
+      accessToken: this.jwtService.sign({ user }),
     };
   }
 }

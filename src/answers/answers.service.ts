@@ -1,60 +1,61 @@
 import { Injectable } from '@nestjs/common';
-import { PrismaClient } from '@prisma/mongo/client';
-import { CreateAnswerDto, UpdateAnswerDto } from 'src/answers/answer.dto';
+import { PrismaClient as MongoClient } from '@prisma/mongo/client';
+import { PrismaClient as PostgresClient } from '@prisma/postgres/client';
+import { CreateAnswerDto } from 'src/answers/answer.dto';
 
 @Injectable()
 export class AnswerService {
-  private readonly prisma: PrismaClient;
+  private readonly postgresPrisma: PostgresClient;
+  private readonly mongoPrisma: MongoClient;
 
   constructor() {
-    this.prisma = new PrismaClient();
+    this.postgresPrisma = new PostgresClient();
+    this.mongoPrisma = new MongoClient();
   }
 
-  async createAnswer(experimentId: string, createAnswerDto: CreateAnswerDto) {
-    try {
-      const newAnswer = await this.prisma.answer.create({
-        data: {
-          ...createAnswerDto,
-          experimentId,
-        },
+  async createAnswer(id: number, createAnswerDto: CreateAnswerDto) {
+    const { mongoId: experimentId } =
+      await this.postgresPrisma.experiment.findUnique({
+        where: { pk: id },
       });
-      return newAnswer;
-    } catch (error) {
-      throw error;
-    }
+    const newAnswer = await this.mongoPrisma.answer.create({
+      data: {
+        ...createAnswerDto,
+        experimentId,
+      },
+    });
+    return newAnswer;
   }
 
-  async updateAnswer(answerId: string, updateAnswerDto: UpdateAnswerDto) {
-    try {
-      const updatedAnswer = await this.prisma.answer.update({
-        where: { id: answerId },
-        data: updateAnswerDto,
-      });
-      return updatedAnswer;
-    } catch (error) {
-      throw error;
-    }
-  }
+  // async updateAnswer(answerId: string, updateAnswerDto: UpdateAnswerDto) {
+  //   try {
+  //     const updatedAnswer = await this.prisma.answer.update({
+  //       where: { id: answerId },
+  //       data: updateAnswerDto,
+  //     });
+  //     return updatedAnswer;
+  //   } catch (error) {
+  //     throw error;
+  //   }
+  // }
 
   async getAnswerById(answerId: string) {
-    try {
-      const answer = await this.prisma.answer.findUnique({
-        where: { id: answerId },
-      });
-      return answer;
-    } catch (error) {
-      throw error;
-    }
+    const answer = await this.mongoPrisma.answer.findUnique({
+      where: { id: answerId },
+    });
+    return answer;
   }
 
-  async listAnswers(experimentId: string) {
-    try {
-      const answers = await this.prisma.answer.findMany({
-        where: { experimentId },
+  async listAnswers(id: number) {
+    const { mongoId: experimentId } =
+      await this.postgresPrisma.experiment.findUnique({
+        where: { pk: id },
       });
-      return answers;
-    } catch (error) {
-      throw error;
-    }
+
+    const answers = await this.mongoPrisma.answer.findMany({
+      where: { experimentId },
+    });
+
+    return answers;
   }
 }

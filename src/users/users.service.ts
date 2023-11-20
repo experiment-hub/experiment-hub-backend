@@ -1,7 +1,8 @@
 import { Injectable } from '@nestjs/common';
 import { PrismaClient } from '@prisma/postgres/client';
 import * as bcrypt from 'bcrypt';
-import { CreateUserDto, UpdateUserDto } from 'src/users/user.dto';
+import { CreateUserDto } from './dto/create-user.dto';
+import { UpdateUserDto } from './dto/update-user.dto';
 
 const roundsOfHashing = +process.env.ROUNDS;
 
@@ -13,14 +14,35 @@ export class UsersService {
     this.prisma = new PrismaClient();
   }
 
+  async findById(id: number) {
+    const { password, ...user } = await this.prisma.user.findUnique({
+      where: { pk: id },
+    });
+    return user;
+  }
+
   async findOne(email: string) {
     const user = await this.prisma.user.findUnique({ where: { email } });
     return user;
   }
 
+  async findUserTeams(id: number) {
+    const user = await this.prisma.user.findUnique({
+      where: { pk: id },
+      include: {
+        teams: {
+          select: {
+            team: true,
+          },
+        },
+      },
+    });
+    return user.teams.map((team) => team.team);
+  }
+
   async findByUsername(username: string) {
-    const user = await this.prisma.user.findFirst({
-      where: { email: { startsWith: username } },
+    const { password, ...user } = await this.prisma.user.findFirst({
+      where: { username },
       include: {
         teams: {
           select: {
@@ -33,45 +55,39 @@ export class UsersService {
   }
 
   async createUser(createUserDto: CreateUserDto) {
-    try {
-      const hashedPassword = await bcrypt.hash(
-        createUserDto.password,
-        roundsOfHashing,
-      );
+    const hashedPassword = await bcrypt.hash(
+      createUserDto.password,
+      roundsOfHashing,
+    );
 
-      createUserDto.password = hashedPassword;
+    createUserDto.password = hashedPassword;
 
-      const newUser = await this.prisma.user.create({
-        data: {
-          email: createUserDto.email,
-          password: createUserDto.password,
-          name: createUserDto.name,
-          organization: createUserDto.organization,
-        },
-      });
-
-      // Create a new team for the user using the user's name as the team's name
-      const newTeam = await this.prisma.team.create({
-        data: {
-          name: `${createUserDto.name}'s Team`,
-          users: {
-            create: [
-              {
-                userId: newUser.pk,
+    const user = await this.prisma.user.create({
+      data: {
+        email: createUserDto.email,
+        password: createUserDto.password,
+        name: createUserDto.name,
+        organization: createUserDto.organization,
+        username: createUserDto.username,
+        avatar: '',
+        teams: {
+          create: [
+            {
+              team: {
+                create: {
+                  name: `${createUserDto.name}'s Team`,
+                  slug: `${createUserDto.name
+                    .toLowerCase()
+                    .replace(' ', '-')}-team`,
+                },
               },
-            ],
-          },
+            },
+          ],
         },
-      });
+      },
+    });
 
-      return { newUser, newTeam };
-    } catch (error) {
-      throw error; // Rethrow the error to be caught by the controller
-    }
-  }
-
-  async getUserById(id: number) {
-    return this.prisma.user.findUnique({ where: { pk: id } });
+    return { user };
   }
 
   async updateUser(id: number, updateUserDto: UpdateUserDto) {
@@ -82,11 +98,12 @@ export class UsersService {
       );
     }
 
-    const updatedUser = await this.prisma.user.update({
+    const { password, ...user } = await this.prisma.user.update({
       where: { pk: id },
       data: updateUserDto,
     });
-    return updatedUser;
+
+    return user;
   }
 
   async listUsers() {
