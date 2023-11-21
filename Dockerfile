@@ -1,23 +1,16 @@
-FROM node:18.16.0
+FROM --platform=linux/amd64 node:18.16.0
 
-# Create app directory
 WORKDIR /usr/src/app
 
-# Install app dependencies
-# A wildcard is used to ensure both package.json AND package-lock.json are copied
-# where available (npm@5+)
-COPY package*.json ./
-
-RUN npm install
-# If you are building your code for production
-# RUN npm ci --only=production
-
-# Bundle app source
 COPY . .
 
-RUN npx prisma generate
+RUN npm install
+RUN npx prisma generate --schema=./prisma/mongo/schema.prisma
+RUN npx prisma generate --schema=./prisma/postgres/schema.prisma
 RUN npm run prisma:generate:db_clients
+RUN npm run prisma:postgres:dbpush
+RUN npm run prisma:mongo:dbpush
+RUN npm run build
 
 EXPOSE 3000
-RUN npm run build
 CMD [ "npm", "run", "start:prod" ]
