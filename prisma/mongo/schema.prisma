@@ -40,10 +40,10 @@ type ExperimentView {
 }
 
 type ExperimentWidget {
-    id        String?
+    id           String?
     widgetFamily String
-    template  String
-    props     Json?
+    template     String
+    props        Json?
 }
 
 model Answer {
