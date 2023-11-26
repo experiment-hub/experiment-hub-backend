@@ -15,10 +15,29 @@ export class UsersService {
   }
 
   async findById(id: number) {
-    const { password, ...user } = await this.prisma.user.findUnique({
+    const record = await this.prisma.user.findUnique({
       where: { pk: id },
     });
-    return user;
+
+    if (record === null) {
+      throw new Error('User not found.');
+    } else {
+      const { password, ...user } = record;
+      return user;
+    }
+  }
+
+  async findBySlug(slug: string) {
+    const record = await this.prisma.user.findUnique({
+      where: { username: slug },
+    });
+
+    if (record === null) {
+      throw new Error('User not found.');
+    } else {
+      const { password, ...user } = record;
+      return user;
+    }
   }
 
   async findOne(email: string) {
@@ -59,6 +78,7 @@ export class UsersService {
         },
       },
     });
+    
     return user.teams.map((team) => ({
       ...team.team,
       users: team.team.users.map((user) => user.user),

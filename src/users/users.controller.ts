@@ -34,6 +34,19 @@ export class UsersController {
     }
   }
 
+  @Get('/slug/:slug')
+  async getUserBySlug(@Param('slug') slug: string) {
+    try {
+      const user = await this.usersService.findBySlug(slug);
+      return user;
+    } catch (error) {
+      throw new HttpException(
+        `An error occurred while finding the user: ${error.message}`,
+        HttpStatus.INTERNAL_SERVER_ERROR,
+      );
+    }
+  }
+
   @Get(':id/teams')
   async getUserTeams(@Param('id', ParseIntPipe) id: number) {
     try {

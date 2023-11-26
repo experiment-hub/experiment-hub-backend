@@ -47,6 +47,19 @@ export class TeamController {
     }
   }
 
+  @Get('/slug/:slug')
+  async getTeamBySlug(@Param('slug') slug: string) {
+    try {
+      const team = await this.teamsService.getTeamBySlug(slug);
+      return team;
+    } catch (error) {
+      throw new HttpException(
+        'An error occurred while finding the team.',
+        HttpStatus.INTERNAL_SERVER_ERROR,
+      );
+    }
+  }
+
   @Delete(':id')
   async deleteTeam(@Param('id', ParseIntPipe) id: number) {
     try {

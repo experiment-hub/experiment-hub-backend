@@ -72,6 +72,27 @@ export class TeamsService {
     };
   }
 
+  async getTeamBySlug(slug: string) {
+    const { users, ...team } = await this.postgresPrisma.team.findUnique({
+      where: { slug },
+      include: {
+        users: {
+          select: {
+            user: userSelector,
+          },
+        },
+      },
+    });
+
+    const experiments = await this.getTeamExperiments(team.pk);
+
+    return {
+      ...team,
+      users: users.map((user) => user.user),
+      experiments,
+    };
+  }
+
   async getTeamMembers(id: number) {
     const team = await this.postgresPrisma.team.findUnique({
       where: { pk: id },

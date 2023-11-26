@@ -40,7 +40,7 @@ export class ExperimentsService {
       },
     });
 
-    return { mongoExperiment, postgresExperiment };
+    return await this.findOne(postgresExperiment.pk);
   }
 
   async findAll() {
@@ -57,6 +57,7 @@ export class ExperimentsService {
             pk: true,
             name: true,
             description: true,
+            slug: true,
             users: {
               select: {
                 user: {
@@ -140,6 +141,7 @@ export class ExperimentsService {
           select: {
             pk: true,
             name: true,
+            slug: true,
             description: true,
             users: {
               select: {
@@ -284,15 +286,6 @@ export class ExperimentsService {
         slug,
         description,
         coverImage,
-      },
-      include: {
-        team: {
-          select: {
-            pk: true,
-            name: true,
-            description: true,
-          },
-        },
       },
     });
 
