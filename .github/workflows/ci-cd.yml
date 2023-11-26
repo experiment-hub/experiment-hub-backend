@@ -41,7 +41,7 @@ jobs:
           tags: ${{ steps.meta.outputs.tags }}
       - name: Test
         run: |
-          docker run --rm ${{ steps.meta.outputs.tags }}          
+          docker run --rm ${{ steps.meta.outputs.tags }} npm run start:dev       
       - name: Build and push
         uses: docker/build-push-action@v5
         with:
