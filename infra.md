@@ -176,12 +176,3 @@ echo "deb [ arch=amd64,arm64 ] https://repo.mongodb.org/apt/ubuntu jammy/mongodb
 sudo apt-get update
 sudo apt-get install -y mongodb-mongosh
 ```
-
-use admin
-db.grantRolesToUser(
-  "admin",
-  [
-    { role: "clusterAdmin", db: "admin" }
-  ]
-)
-
