@@ -78,7 +78,7 @@ export class UsersService {
         },
       },
     });
-    
+
     return user.teams.map((team) => ({
       ...team.team,
       users: team.team.users.map((user) => user.user),
@@ -114,7 +114,7 @@ export class UsersService {
         name: createUserDto.name,
         organization: createUserDto.organization,
         username: createUserDto.username,
-        avatar: '',
+        avatar: createUserDto.avatar || '',
         teams: {
           create: [
             {
@@ -123,7 +123,7 @@ export class UsersService {
                   name: `${createUserDto.name}'s Team`,
                   slug: `${createUserDto.name
                     .toLowerCase()
-                    .replace(' ', '-')}-team`,
+                    .replaceAll(' ', '-')}-team`,
                 },
               },
             },

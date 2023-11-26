@@ -22,7 +22,18 @@ export class ExperimentsService {
     const mongoExperiment = await this.mongoPrisma.experiment.create({
       data: {
         slug,
-        nodes: [],
+        nodes: [
+          {
+            id: 'start',
+            nodeFamily: 'core',
+            nodeType: 'start',
+          },
+          {
+            id: 'finish',
+            nodeFamily: 'core',
+            nodeType: 'finish',
+          },
+        ],
         views: [],
       },
     });
