@@ -2,11 +2,8 @@ version: '3'
 
 services:
   experiment-hub-backend:
-    build: .
-    env_file:
-      - .env
+    container_name: experiment-hub-backend
+    image: carobaldino/experiment-hub-backend:v0.1
     ports:
       - 3000:3000
-    volumes:
-      - ./:/usr/src/app
     command: npm run start:dev
