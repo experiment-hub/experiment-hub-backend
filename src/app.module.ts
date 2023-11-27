@@ -6,9 +6,13 @@ import { DatabaseModule } from './database/database.module';
 import { ExperimentsModule } from './experiments/experiments.module';
 import { TeamModule } from './teams/teams.module';
 import { UsersModule } from './users/users.module';
+import { ConfigModule } from '@nestjs/config';
 
 @Module({
   imports: [
+    ConfigModule.forRoot({
+      envFilePath: '.env',
+    }),
     AuthModule,
     UsersModule,
     TeamModule,
