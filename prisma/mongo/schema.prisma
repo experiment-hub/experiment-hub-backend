@@ -20,8 +20,6 @@ model Experiment {
 
     answers Answer[]
 
-    @@unique([views.slug])
-    @@unique([nodes.id])
     @@map("experiments")
 }
 
