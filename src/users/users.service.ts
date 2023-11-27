@@ -1,16 +1,15 @@
 import { Injectable } from '@nestjs/common';
+import { ConfigService } from '@nestjs/config';
 import { PrismaClient } from '@prisma/postgres/client';
 import * as bcrypt from 'bcrypt';
 import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
 
-const roundsOfHashing = +process.env.ROUNDS;
-
 @Injectable()
 export class UsersService {
   private readonly prisma: PrismaClient;
 
-  constructor() {
+  constructor(private configService: ConfigService) {
     this.prisma = new PrismaClient();
   }
 
@@ -102,7 +101,7 @@ export class UsersService {
   async createUser(createUserDto: CreateUserDto) {
     const hashedPassword = await bcrypt.hash(
       createUserDto.password,
-      roundsOfHashing,
+      parseInt(this.configService.get<string>('ROUNDS')),
     );
 
     createUserDto.password = hashedPassword;
@@ -115,20 +114,6 @@ export class UsersService {
         organization: createUserDto.organization,
         username: createUserDto.username,
         avatar: createUserDto.avatar || '',
-        teams: {
-          create: [
-            {
-              team: {
-                create: {
-                  name: `${createUserDto.name}'s Team`,
-                  slug: `${createUserDto.name
-                    .toLowerCase()
-                    .replaceAll(' ', '-')}-team`,
-                },
-              },
-            },
-          ],
-        },
       },
     });
 
@@ -139,7 +124,7 @@ export class UsersService {
     if (updateUserDto.password) {
       updateUserDto.password = await bcrypt.hash(
         updateUserDto.password,
-        roundsOfHashing,
+        parseInt(this.configService.get<string>('ROUNDS')),
       );
     }
 

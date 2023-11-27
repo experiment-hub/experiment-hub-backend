@@ -7,12 +7,14 @@ import {
   HttpStatus,
   Param,
   ParseIntPipe,
+  Patch,
   Post,
 } from '@nestjs/common';
 
 import { TeamMediaService } from './teamMedia.service';
 import { TeamsService } from './teams.service';
 import { CreateTeamDto } from './dto/create-team.dto';
+import { UpdateTeamDto } from './dto/update-team.dto';
 
 @Controller('teams')
 export class TeamController {
@@ -97,26 +99,29 @@ export class TeamController {
     }
   }
 
-  // @Put(':id')
-  // async updateTeam(
-  //   @Param('id', ParseIntPipe) id: number,
-  //   @Body() updateTeamDto: UpdateTeamDto,
-  // ) {
-  //   try {
-  //     const updatedTeam = await this.teamsService.updateTeam(id, updateTeamDto);
-  //     return updatedTeam;
-  //   } catch (error) {
-  //     throw new HttpException(
-  //       'An error occurred while updating the team.',
-  //       HttpStatus.INTERNAL_SERVER_ERROR,
-  //     );
-  //   }
-  // }
+  @Patch(':id/members')
+  async updateTeam(
+    @Param('id', ParseIntPipe) id: number,
+    @Body() updateTeamDto: UpdateTeamDto,
+  ) {
+    try {
+      const updatedTeam = await this.teamsService.inviteMembers(
+        id,
+        updateTeamDto.members,
+      );
+      return updatedTeam;
+    } catch (error) {
+      throw new HttpException(
+        'An error occurred while updating the team.',
+        HttpStatus.INTERNAL_SERVER_ERROR,
+      );
+    }
+  }
 
   // @Post(':id/media')
   // @UseInterceptors(FileInterceptor('file'))
   // async uploadMedia(
-  //   @Param('id', ParseIntPipe) id: number,
+  //   @Pnaram('id', ParseIntPipe) id: number,
   //   @UploadedFile() file: Express.Multer.File,
   // ) {
   //   try {

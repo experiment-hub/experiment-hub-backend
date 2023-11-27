@@ -43,13 +43,24 @@ export class TeamsService {
     return newTeam;
   }
 
-  // async updateTeam(id: number, updateTeamDto: UpdateTeamDto) {
-  //   const updatedTeam = await this.prisma.team.update({
-  //     where: { pk: id },
-  //     data: updateTeamDto,
-  //   });
-  //   return updatedTeam;
-  // }
+  async inviteMembers(teamId: number, slugs: string[]) {
+    const users = await this.postgresPrisma.user.findMany({
+      where: {
+        username: {
+          in: slugs,
+        },
+      },
+    });
+
+    const members = await this.postgresPrisma.teamUser.createMany({
+      data: users.map((user) => ({
+        teamId,
+        userId: user.pk,
+      })),
+    });
+
+    return members;
+  }
 
   async getTeamById(id: number) {
     const { users, ...team } = await this.postgresPrisma.team.findUnique({
