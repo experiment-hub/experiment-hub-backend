@@ -7,6 +7,7 @@ import {
   Param,
   ParseIntPipe,
   Post,
+  Put,
 } from '@nestjs/common';
 import { CreateAnswerDto } from 'src/answers/answer.dto';
 import { AnswerService } from './answers.service';
@@ -47,24 +48,26 @@ export class AnswerController {
     }
   }
 
-  // @Put(':answerId')
-  // async updateAnswer(
-  //   @Param('answerId') answerId: string,
-  //   @Body() updateAnswerDto: UpdateAnswerDto,
-  // ) {
-  //   try {
-  //     const updatedAnswer = await this.answerService.updateAnswer(
-  //       answerId,
-  //       updateAnswerDto,
-  //     );
-  //     return updatedAnswer;
-  //   } catch (error) {
-  //     throw new HttpException(
-  //       'An error occurred while updating the answer.',
-  //       HttpStatus.INTERNAL_SERVER_ERROR,
-  //     );
-  //   }
-  // }
+  @Put(':answerId')
+  async updateAnswer(
+    @Param('id', ParseIntPipe) id: number,
+    @Param('answerId') answerId: string,
+    @Body() updateAnswerDto: CreateAnswerDto,
+  ) {
+    try {
+      const updatedAnswer = await this.answerService.updateAnswer(
+        id,
+        answerId,
+        updateAnswerDto,
+      );
+      return updatedAnswer;
+    } catch (error) {
+      throw new HttpException(
+        'An error occurred while updating the answer.',
+        HttpStatus.INTERNAL_SERVER_ERROR,
+      );
+    }
+  }
 
   // @Get(':answerId')
   // async getAnswer(@Param('answerId') answerId: string) {

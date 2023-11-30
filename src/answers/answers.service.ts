@@ -27,17 +27,21 @@ export class AnswerService {
     return newAnswer;
   }
 
-  // async updateAnswer(answerId: string, updateAnswerDto: UpdateAnswerDto) {
-  //   try {
-  //     const updatedAnswer = await this.prisma.answer.update({
-  //       where: { id: answerId },
-  //       data: updateAnswerDto,
-  //     });
-  //     return updatedAnswer;
-  //   } catch (error) {
-  //     throw error;
-  //   }
-  // }
+  async updateAnswer(
+    id: number,
+    answerId: string,
+    updateAnswerDto: CreateAnswerDto,
+  ) {
+    try {
+      const updatedAnswer = await this.mongoPrisma.answer.update({
+        where: { id: answerId },
+        data: updateAnswerDto,
+      });
+      return updatedAnswer;
+    } catch (error) {
+      throw error;
+    }
+  }
 
   async getAnswerById(answerId: string) {
     const answer = await this.mongoPrisma.answer.findUnique({
